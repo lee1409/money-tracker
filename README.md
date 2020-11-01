@@ -32,9 +32,17 @@
 ## Usage
 1. Then `expo start`
 2. A browser will pop up
-3. Click 'run on Android Emulator' (probably)
-4. Wait android emulator to load
-5.  Click 'Expo' app
-6. Copy the connection URL
-7. Click "Open from Clipboard" on android emulator
+3. Start an android emulator
+4. Click 'run on Android Emulator' (probably)
+5. Wait android emulator to load
+6.  Click 'Expo' app
+7. Copy the connection URL
+8. Click "Open from Clipboard" on android emulator
 
+## React Native Debugger
+1. Download RND https://github.com/jhen0409/react-native-debugger/releases/tag/v0.11.5
+2. Open App on emulator
+3. Enable JS Debug
+4. Close http://localhost:8081/debugger-ui window if pop up
+5. Open RND
+6. If port is not 19001, `Ctrl + T` to set up new connection
