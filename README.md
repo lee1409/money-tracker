@@ -31,13 +31,17 @@
 
 ## Usage
 1. Then `expo start`
-2. A browser will pop up
-3. Start an android emulator
-4. Click 'run on Android Emulator' (probably)
-5. Wait android emulator to load
-6.  Click 'Expo' app
-7. Copy the connection URL
-8. Click "Open from Clipboard" on android emulator
+2. A browser will pop up to open expo interface.
+3. Open android emulator.
+4. Click 'run on Android Emulator'.
+5. Wait android emulator to load.
+6. The app may start automatically.
+
+### To run manually
+7. Click 'Expo' app from the emulator.
+8. Copy the connection URL. You can find it from expo interface.
+9. The clipboards section will list out your URL.
+10. Click "Open from Clipboard" on android emulator.
 
 ## React Native Debugger
 1. Download RND https://github.com/jhen0409/react-native-debugger/releases/tag/v0.11.5
