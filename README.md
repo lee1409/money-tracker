@@ -43,6 +43,12 @@
 9. The clipboards section will list out your URL.
 10. Click "Open from Clipboard" on android emulator.
 
+### Start emulator
+1. Make sure env is set
+   1. `$ANDROID_SDK_ROOT/emulator`
+   2. `$ANDROID_SDK_ROOT/tools`
+2. Run `yarn emulator:start`
+
 ## React Native Debugger
 1. Download RND https://github.com/jhen0409/react-native-debugger/releases/tag/v0.11.5
 2. Open App on emulator
