@@ -2,21 +2,20 @@ import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Provider } from "react-redux";
-import { createStore } from "redux";
-import rootReducer from "./src/redux/reducers";
+import { PersistGate } from "redux-persist/integration/react";
+import configureStore from "./configureStore";
 
-const store = createStore(
-  rootReducer,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-);
+const { store, persistor } = configureStore();
 
 export default function App() {
   return (
     <Provider store={store}>
-      <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
-        <StatusBar style="auto" />
-      </View>
+      <PersistGate persistor={persistor}>
+        <View style={styles.container}>
+          <Text>Open up App.js to start working on your app!</Text>
+          <StatusBar style="auto" />
+        </View>
+      </PersistGate>
     </Provider>
   );
 }
