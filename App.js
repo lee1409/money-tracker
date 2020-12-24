@@ -1,9 +1,11 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { Provider as PaperProvider } from "react-native-paper";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import configureStore from "./configureStore";
+import Screen from './src/screens/index'
 
 const { store, persistor } = configureStore();
 
@@ -11,10 +13,9 @@ export default function App() {
   return (
     <Provider store={store}>
       <PersistGate persistor={persistor}>
-        <View style={styles.container}>
-          <Text>Open up App.js to start working on your app!</Text>
-          <StatusBar style="auto" />
-        </View>
+        <PaperProvider>
+          <Screen></Screen>
+        </PaperProvider>
       </PersistGate>
     </Provider>
   );
