@@ -1,3 +1,5 @@
+import { createAction } from "@reduxjs/toolkit";
+
 let nextTodoId = 0
 export const addTodo = text => ({
   type: 'ADD_TODO',
@@ -20,3 +22,17 @@ export const VisibilityFilters = {
   SHOW_COMPLETED: 'SHOW_COMPLETED',
   SHOW_ACTIVE: 'SHOW_ACTIVE'
 }
+
+
+
+export const addEvent = createAction("ADD_EVENT", (form) => ({
+  payload: form
+}))
+
+export const updateEvent = createAction("UPDATE_EVENT", (form) => ({payload: form}));
+
+export const deleteEvent = createAction("DELETE_EVENT", (id) => ({payload: id}));
+
+export const addCategory = createAction("ADD_CATEGORY", (category) => ({payload: category}));
+
+export const deleteCategory = createAction('DELETE_CATEGORY', (category) => ({payload: category}));
