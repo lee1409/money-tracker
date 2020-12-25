@@ -5,7 +5,7 @@ import rootReducer from "./src/redux/reducers";
 
 const persistConfig = {
   version: 1,
-  key: "root",
+  key: "dev",
   storage: AsyncStorage,
 };
 
@@ -17,9 +17,6 @@ export default () => {
     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
   );
   // Prevent persisting when development
-  let persistor =
-    process.env.NODE_ENV !== "production"
-      ? persistStore(store, {manualPersist: true})
-      : persistStore(store);
+  let persistor = persistStore(store);
   return { store, persistor };
 };
