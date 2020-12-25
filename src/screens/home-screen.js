@@ -10,7 +10,7 @@ export default function HomeScreen({navigation}) {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Text>Home Screen</Text>
-      <Fab onPress={() => navigation.navigate("CreateEvent")}></Fab>
+      <Fab icon="plus" onPress={() => navigation.navigate("CreateEvent")}></Fab>
     </View>
   );
 }
