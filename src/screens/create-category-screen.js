@@ -1,10 +1,12 @@
 import React from "react";
 import { View, VirtualizedList } from "react-native";
-import { List, Text, IconButton } from "react-native-paper";
+import { List, Text, IconButton, useTheme, Button, Divider } from "react-native-paper";
 import { Searchbar } from "react-native-paper";
 import { useDispatch, useSelector } from "react-redux";
 import { addCategory, deleteCategory } from "../redux/actions/index";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Tries from "../utils/tries";
+import { color } from "react-native-reanimated";
 
 const getItem = (data, index) => {
   return data[index];
@@ -15,6 +17,7 @@ const getItemCount = (data) => {
 };
 
 export default function CreateCategoryScreen({ navigation }) {
+  const { colors } = useTheme();
   const categories = useSelector((state) => state.categories);
   const tries = React.useMemo(() => new Tries(categories), [categories]);
 
@@ -29,8 +32,30 @@ export default function CreateCategoryScreen({ navigation }) {
   const categoryDispatch = useDispatch();
 
   return (
-    <View>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.primary, padding: 24 }}
+    >
+      <View
+        style={{
+          flexGrow: 0,
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 12,
+        }}
+      >
+        <IconButton
+          icon={"close"}
+          style={{ marginLeft: -6 }}
+          color={colors.primary2}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        ></IconButton>
+      </View>
+
       <Searchbar
+        style={{ marginBottom: 24 }}
         placeholder="Search"
         onChangeText={onChangeSearch}
         onSubmitEditing={() => {
@@ -46,6 +71,8 @@ export default function CreateCategoryScreen({ navigation }) {
           keyExtractor={(item, index) => {
             return item[index];
           }}
+          ItemSeparatorComponent={() => <Divider></Divider>}
+          contentContainerStyle={{borderRadius: 12, backgroundColor: colors.primary3}}
           data={result}
           getItem={getItem}
           getItemCount={getItemCount}
@@ -57,24 +84,50 @@ export default function CreateCategoryScreen({ navigation }) {
               right={() => (
                 <IconButton
                   icon={"delete"}
+                  color={colors.accent2}
                   onPress={() => {
-                    let copy = Array.from(result)
-                    copy.splice(index, 1)
+                    let copy = Array.from(result);
+                    copy.splice(index, 1);
                     // Local + global delete
                     setResult(copy);
                     categoryDispatch(deleteCategory(item));
                   }}
                 ></IconButton>
               )}
+              titleStyle={{
+                color: colors.accent2
+              }}
               title={item}
             ></List.Item>
           )}
         ></VirtualizedList>
       ) : searchQuery === "" ? (
-        <Text>Enter text to add category</Text>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 16,
+            }}
+          >
+            Enter text to add category
+          </Text>
+        </View>
       ) : (
-        <Text>Press Enter to add categories</Text>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 16,
+            }}
+          >
+            Press "Enter" to add categories
+          </Text>
+        </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
