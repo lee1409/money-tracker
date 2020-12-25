@@ -1,53 +1,97 @@
 import React from "react";
 import { View } from "react-native";
-import { TextInput, Text, Menu, Button, Divider } from "react-native-paper";
-import {addEvent} from '../redux/actions/index'
+import { TextInput, Text, Menu, Button } from "react-native-paper";
+import { addEvent } from "../redux/actions/index";
 import { useDispatch } from "react-redux";
+import { createUUID } from "../utils/index";
 
-export default function CreateEventScreen() {
-  const [text, setText] = React.useState("");
+const days = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+export default function CreateEventScreen({ route, navigation }) {
+  const [form, setForm] = React.useState({
+    uid: createUUID(),
+    amount: null,
+    category: null,
+    name: null,
+    day: new Date().getDay(),
+  });
+
+  React.useEffect(() => {
+    if (route.params?.category) {
+      setForm({ ...form, category: route.params.category });
+    }
+  }, [route.params?.category]);
 
   const [visible, setVisible] = React.useState(false);
+  const dispatch = useDispatch();
 
-  const openMenu = () => setVisible(true);
+  const handleVisible = () => {
+    setVisible((prev) => !prev);
+  };
 
-  const closeMenu = () => setVisible(false);
-  const dispatch = useDispatch()
+  const handleDay = (day) => {
+    handleVisible();
+    setForm({ ...form, day });
+  };
 
+  const handleName = (name) => {
+    setForm({ ...form, name });
+  };
+
+  const handleAmount = (amount) => {
+    setForm({ ...form, amount });
+  };
 
   return (
     <View>
+      <Button
+        onPress={() => {
+          dispatch(addEvent({ form }));
+          navigation.goBack();
+        }}
+      >
+        Save
+      </Button>
       <Text>Going to</Text>
       <Text>spend</Text>
       <TextInput
-        label="Ringgit"
-        onChangeText={(text) => setText(text)}
-        value={text}
+        label="Amount"
+        onChangeText={handleAmount}
+        value={form.amount}
       ></TextInput>
       <Text>on</Text>
       <TextInput
-        label="Category"
+        name={"name"}
+        label="Name"
+        onChangeText={handleName}
+        value={form.name}
       ></TextInput>
+      <Button
+        icon={"arrow-down"}
+        onPress={() => navigation.navigate("CreateCategory")}
+      >
+        {form.category || "category"}
+      </Button>
+      <Text>Every</Text>
       <Menu
-          visible={visible}
-          onDismiss={closeMenu}
-          anchor={<Button onPress={openMenu}>Show menu</Button>}>
-          <Menu.Item onPress={() => {}} title="Item 1" />
-          <Menu.Item onPress={() => {}} title="Item 2" />
-          <Divider />
-          <Menu.Item onPress={() => {}} title="Item 3" />
-        </Menu>
-      <TextInput>Every</TextInput>
-      <Menu
-          visible={visible}
-          onDismiss={closeMenu}
-          anchor={<Button onPress={openMenu}>Show menu</Button>}>
-          <Menu.Item onPress={() => {}} title="Item 1" />
-          <Menu.Item onPress={() => {}} title="Item 2" />
-          <Divider />
-          <Menu.Item onPress={() => {}} title="Item 3" />
-        </Menu>
-        <Button onPress={() => dispatch(addEvent({text: text}))}>Add</Button>
+        visible={visible}
+        onDismiss={handleVisible}
+        anchor={
+          <Button onPress={handleVisible}>{days[form.day] || "Day"}</Button>
+        }
+      >
+        {days.map((el, index) => (
+          <Menu.Item title={el} key={el} onPress={() => handleDay(index)} />
+        ))}
+      </Menu>
     </View>
   );
 }
