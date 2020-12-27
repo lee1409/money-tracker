@@ -249,6 +249,7 @@ export default function ProfileScreen({route, navigation}) {
                 <Text
                   style={{
                     fontSize: 18,
+                    fontWeight: "bold",
                     color: colors.secondary,
                     textAlign: 'center'
                   }}
@@ -261,17 +262,44 @@ export default function ProfileScreen({route, navigation}) {
                 style={{
                   flex: 1.5,
                 }}>
-                <ProgressBar
-                  progress={userInfo.goalProgress / 100}
-                  color={colors.secondary}
+                <View
                   style={{
-                    height: 15,
-                    marginTop: 10,
-                    color: colors.secondary,
-                    backgrondColor: colors.primary,
-                    borderRadius: 20
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "center",
                   }}
-                />
+                >
+                  <View
+                    style={{
+                      width: 180*(userInfo.goalProgress/100),
+                      height: 25,
+                      marginTop: 10,
+                      backgroundColor: colors.secondary,
+                      borderRadius: 20
+                  }}></View>
+                  <View
+                    style={{
+                      width: 180*((115-userInfo.goalProgress)/100),
+                      height: 25,
+                      marginLeft: -20,
+                      marginTop: 10,
+                      backgroundColor: colors.primary,
+                      borderRadius: 20,
+                      zIndex: -1
+                  }}></View>
+                </View>
+                {/*<ProgressBar*/}
+                {/*  progress={userInfo.goalProgress / 100}*/}
+                {/*  color={colors.secondary}*/}
+                {/*  style={{*/}
+                {/*    height: 15,*/}
+                {/*    marginTop: 10,*/}
+                {/*    color: colors.secondary,*/}
+                {/*    backgrondColor: colors.primary,*/}
+                {/*    borderRadius: 20*/}
+                {/*  }}*/}
+                {/*/>*/}
                 <Text
                   style={{
                     fontSize: 13,
