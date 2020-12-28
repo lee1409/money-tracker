@@ -6,7 +6,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "eject": "expo eject",
-    "start:emulator": "node ./scripts/index.js"
+    "start:emulator": "yarn ./scripts/index.js"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.13.2",
@@ -21,6 +21,7 @@
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-39.0.4.tar.gz",
     "react-native-chart-kit": "^6.9.0",
+    "react-native-elements": "^3.0.1",
     "react-native-gesture-handler": "~1.7.0",
     "react-native-paper": "^4.5.0",
     "react-native-reanimated": "~1.13.0",
