@@ -20,25 +20,15 @@ import {
 import {
   BarChart,
 } from "react-native-chart-kit";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {createUUID} from "../utils/index";
+import {addGoal, updateGoal} from "../redux/actions";
 
 const userInfo = {
   name: "Lee",
   streak: 120,
   score: 80,
-  goal: "A new bicycle",
-  goalProgress: 70,
 }
-
-const data = {
-  labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-  datasets: [
-    {
-      data: [20, 45, 28, 80, 99, 43, 58]
-    }
-  ]
-};
 
 const expenses = [
   {
@@ -63,7 +53,9 @@ export default function ProfileScreen({route, navigation}) {
 
   const barSize = () => {
     if(windowWidth < 325) return 0.5;
-    return 0.8;
+    else if(windowWidth < 365) return 0.5;
+    else if(windowWidth < 380) return 0.6;
+    return 0.7;
   };
   const config = {
     backgroundGradientFrom: colors.primary3,
@@ -81,14 +73,47 @@ export default function ProfileScreen({route, navigation}) {
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
-  const [goal, setGoal] = useState(null);
+  const prevGoal = useSelector((state) => state.goal_[0]);
+  const [goal, setGoal] = useState({name: null, amount:null, progress: 0});
+  // const lastWeekData = useSelector((state) => state.lastweek);
+  const [lastWeek, setLastWeek] = useState([20, 45, -28, 80, 99, 43, 58]);
+  const months = ["JAN", "FEB", "MAR","APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+  let data = {
+    labels: [...Array(7)].map((_, i) => {
+              const d = new Date()
+              d.setDate(d.getDate() - i)
+              // return d.getDate() + "-" + months[d.getMonth()]
+              return d.getDate() + "." + (d.getMonth()+1)
+            }),
+    datasets: [{data: lastWeek}]
+  };
 
   useEffect(() => {
     chartConfig = config;
+    if(!!prevGoal) setGoal({...prevGoal});
   }, []);
 
   const dispatch = useDispatch();
 
+  const handleGoal = (name) => {
+    setGoal({...goal, name});
+  };
+
+  const handleGoalAmount = (amount)=>{
+    setGoal({...goal, amount});
+  }
+
+  const confirmGoal = () => {
+    console.log("---confirm", goal.name);
+    if(goal.name!=null && (goal.name).trim().length >= 3 && goal.amount > 10) {
+      console.log("valid")
+      dispatch(updateGoal(goal));
+    }else {
+      console.log("invalid")
+      Alert.alert('Please input at least 3 letters for goal and amount larger than 10.');
+      if(!!prevGoal) setGoal(prevGoal);
+    }
+  }
 
   return (
     <SafeAreaView
@@ -217,7 +242,7 @@ export default function ProfileScreen({route, navigation}) {
                     textAlign: 'left'
                   }}
                 >
-                  {userInfo.goal}
+                  {(goal.name === "" || goal.name == null)? ("Set A Goal"):(goal.name)}
                 </Text>
               </View>
 
@@ -230,11 +255,11 @@ export default function ProfileScreen({route, navigation}) {
                     alignItems: "center",
                   }}
                 >
-                  <View style={progressBarLeft(windowWidth, userInfo, colors.secondary)}></View>
-                  <View style={progressBarRight(windowWidth, userInfo, colors.primary)}></View>
+                  <View style={progressBarLeft(windowWidth, goal.progress, colors.secondary)}></View>
+                  <View style={progressBarRight(windowWidth, goal.progress, colors.primary)}></View>
                 </View>
                 <Text style={{fontSize: 12, color: colors.text, marginTop: 10}}>
-                  {`You have completed ${userInfo.goalProgress}%. Keep it up!`}
+                  {`You have completed ${goal.progress}%. Keep it up!`}
                 </Text>
               </View>
             </View>
@@ -270,13 +295,13 @@ export default function ProfileScreen({route, navigation}) {
             width={windowWidth - (windowWidth * 0.3)}
             height={220}
             yAxisLabel="$"
-            withVerticalLabels
-            withHorizontalLabels
+            // withVerticalLabels
+            // withHorizontalLabels
             showValuesOnTopOfBars
             fromZero={false}
             withInnerLines={false}
             chartConfig={chartConfig}
-            verticalLabelRotation={0}
+            // verticalLabelRotation={0}
             // horizontalLabelRotation={-10}
           />
         </View>
@@ -367,21 +392,34 @@ export default function ProfileScreen({route, navigation}) {
             <View>
               <Text
                 style={{
-                  fontSize: 22,
+                  fontSize: 16,
                   fontWeight: "bold",
-                  color: colors.primary,
+                  color: colors.accent2,
                   marginBottom: 12,
                 }}
               >
-                {goal? ("Edit Goal"):("Set Goal")}
+                {(goal.name === "" || goal.name == null)? ("Set Goal"):("Edit Goal")}
               </Text>
               <TextInput
-                style={{ marginBottom: 12, marginHorizontal: 0, color:colors.accent2 }}
+                style={{ marginBottom: 12, marginHorizontal: 0, color:colors.accent2,
+                  fontSize: 14, borderColor:colors.accent2}}
+                medium
                 placeholderTextColor={colors.accent2}
                 underlineColorAndroid={colors.accent2}
                 label="Goal"
-                // onChangeText={handleAmount}
-                // value={form.amount}
+                onChangeText={handleGoal}
+                value={goal.name}
+                minLength={3}
+              ></TextInput>
+              <TextInput
+                style={{ marginBottom: 12, marginHorizontal: 0, color:colors.accent2,
+                  fontSize: 14, borderColor:colors.accent2}}
+                medium
+                placeholderTextColor={colors.accent2}
+                underlineColorAndroid={colors.accent2}
+                label="Amount"
+                onChangeText={handleGoalAmount}
+                value={goal.amount}
               ></TextInput>
               <View
                 style={{
@@ -393,14 +431,14 @@ export default function ProfileScreen({route, navigation}) {
                 }}
               >
                 <TouchableHighlight>
-                  <Text style={{fontSize: 15, color: colors.accent2, marginRight:20, fontWeight: "bold",}}
+                  <Text style={{fontSize: 12, color: colors.accent2, marginRight:20, fontWeight: "bold",}}
                         onPress={()=>hideModal()}>
                     CANCEL
                   </Text>
                 </TouchableHighlight>
                 <TouchableHighlight>
-                  <Text style={{fontSize: 15, color: colors.accent2, fontWeight: "bold",}}
-                        onPress={()=>console.log()}>
+                  <Text style={{fontSize: 12, color: colors.accent2, fontWeight: "bold",}}
+                        onPress={()=>{confirmGoal(); hideModal()}}>
                     CONFIRM
                   </Text>
                 </TouchableHighlight>
@@ -475,9 +513,9 @@ const cardInnerSplit = function() {
   }
 }
 
-const progressBarLeft = function(windowWidth, userInfo, secondary) {
+const progressBarLeft = function(windowWidth, progress, secondary) {
   return {
-    width: (windowWidth/2)*(userInfo.goalProgress/100),
+    width: (windowWidth/2)*(progress/100),
     height: 22,
     marginTop: 10,
     backgroundColor: secondary,
@@ -485,9 +523,9 @@ const progressBarLeft = function(windowWidth, userInfo, secondary) {
   }
 }
 
-const progressBarRight = function(windowWidth, userInfo, primary) {
+const progressBarRight = function(windowWidth, progress, primary) {
   return {
-    width: (windowWidth/2)*((115-userInfo.goalProgress)/100),
+    width: (windowWidth/2)*((115-progress)/100),
     height: 22,
     marginLeft: -20,
     marginTop: 10,

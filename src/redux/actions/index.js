@@ -36,3 +36,9 @@ export const deleteEvent = createAction("DELETE_EVENT", (id) => ({payload: id}))
 export const addCategory = createAction("ADD_CATEGORY", (category) => ({payload: category}));
 
 export const deleteCategory = createAction('DELETE_CATEGORY', (category) => ({payload: category}));
+
+export const addGoal = createAction("ADD_GOAL", (goal) => ({
+  payload: goal
+}))
+export const updateGoal = createAction("UPDATE_GOAL", (goal) => ({payload: goal}));
+
