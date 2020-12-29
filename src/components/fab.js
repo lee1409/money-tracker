@@ -6,7 +6,6 @@ import {FAB} from 'react-native-paper';
 const MyComponent = ({onPress}) => (
   <FAB
     style={styles.fab}
-    small
     icon="plus"
     onPress={onPress}
   />
