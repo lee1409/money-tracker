@@ -32,12 +32,10 @@ const userInfo = {
 }
 
 const data = {
-  labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-  // labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  //          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
   datasets: [
     {
-      data: [20, 45, 28, 80, 99, 43]
+      data: [20, 45, 28, 80, 99, 43, 58]
     }
   ]
 };
@@ -63,16 +61,21 @@ export default function ProfileScreen({route, navigation}) {
   const windowWidth = Dimensions.get('window').width;
   const windowHeight = Dimensions.get('window').height;
 
-  const chartConfig = {
+  const barSize = () => {
+    if(windowWidth < 325) return 0.5;
+    return 0.8;
+  };
+  const config = {
     backgroundGradientFrom: colors.primary3,
     backgroundGradientFromOpacity: 0,
     backgroundGradientTo: colors.primary3,
     backgroundGradientToOpacity: 0,
-    color: (opacity = 1) => `rgba(244, 128, 36, ${opacity})`,
-    // color: (opacity = 1) => `rgba(240, 207, 163, ${opacity})`,
-    strokeWidth: 5, // optional, default 3
-    barPercentage: 0.8,
+    // color: (opacity = 1) => `rgba(244, 128, 36, ${opacity})`,
+    color: (opacity = 1) => colors.secondary,
+    strokeWidth: 3, // optional, default 3
+    barPercentage: barSize()
   };
+  let chartConfig = config;
 
   const [visible, setVisible] = React.useState(false);
 
@@ -81,6 +84,7 @@ export default function ProfileScreen({route, navigation}) {
   const [goal, setGoal] = useState(null);
 
   useEffect(() => {
+    chartConfig = config;
   }, []);
 
   const dispatch = useDispatch();
@@ -131,7 +135,7 @@ export default function ProfileScreen({route, navigation}) {
                   alignItems: "center",
                 }}
               >
-                <Text style={{fontSize: 30, color: colors.primary3,}}>
+                <Text style={{fontSize: 20, color: colors.primary3,}}>
                   {`${userInfo.streak}`}
                 </Text>
                 <View
@@ -142,11 +146,11 @@ export default function ProfileScreen({route, navigation}) {
                     alignItems: "center",
                   }}
                 >
-                  <View style={{marginRight:5}}>
-                    <Text style={{fontSize: 15, color: colors.primary3,}}>
+                  <View style={{marginLeft:10, marginRight:5}}>
+                    <Text style={{fontSize: 12, color: colors.primary3,}}>
                       Hot
                     </Text>
-                    <Text style={{fontSize: 15, color: colors.primary3,}}>
+                    <Text style={{fontSize: 12, color: colors.primary3,}}>
                       Streak
                     </Text>
                   </View>
@@ -173,10 +177,10 @@ export default function ProfileScreen({route, navigation}) {
                   alignItems: "center",
                 }}
               >
-                <Text style={{fontSize: 30, color: colors.primary3,}}>
+                <Text style={{fontSize: 20, color: colors.primary3,}}>
                   {`${userInfo.score}%`}
                 </Text>
-                <Text style={{fontSize: 20, color: colors.primary3,}}>
+                <Text style={{fontSize: 16, color: colors.primary3,}}>
                   Score
                 </Text>
               </View>
@@ -189,26 +193,28 @@ export default function ProfileScreen({route, navigation}) {
         <Card
           style={{
             borderRadius: 5,
+            padding: 5,
             backgroundColor: colors.primary3,
-            marginTop: 10,
-            marginBottom: 10
+            marginTop: 8,
+            marginBottom: 8
           }}>
           <Card.Content>
             <View
               style={{
+                flex: 2,
                 display: "flex",
                 flexDirection: "row",
-                justifyContent: "space-around",
+                justifyContent: "space-between",
                 alignItems: "center",
               }}
             >
               <View style={{flex: 1, marginRight: 10}}>
                 <Text
                   style={{
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: "bold",
                     color: colors.secondary,
-                    textAlign: 'center'
+                    textAlign: 'left'
                   }}
                 >
                   {userInfo.goal}
@@ -224,10 +230,10 @@ export default function ProfileScreen({route, navigation}) {
                     alignItems: "center",
                   }}
                 >
-                  <View style={progressBarLeft(userInfo, colors.secondary)}></View>
-                  <View style={progressBarRight(userInfo, colors.primary)}></View>
+                  <View style={progressBarLeft(windowWidth, userInfo, colors.secondary)}></View>
+                  <View style={progressBarRight(windowWidth, userInfo, colors.primary)}></View>
                 </View>
-                <Text style={{fontSize: 13, color: colors.text, marginTop: 10}}>
+                <Text style={{fontSize: 12, color: colors.text, marginTop: 10}}>
                   {`You have completed ${userInfo.goalProgress}%. Keep it up!`}
                 </Text>
               </View>
@@ -237,17 +243,31 @@ export default function ProfileScreen({route, navigation}) {
         </Card>
 
         {/*-----chart------------------------------------*/}
-        <View>
+        <View style={{padding: 8, borderRadius: 5, backgroundColor: colors.primary3,}}>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{
+              fontSize: 16, fontWeight: "bold", color: colors.secondary, margin: 5,
+            }}>{"This Week"}</Text>
+          </View>
           <BarChart
             style={{
+              // paddingLeft: -25,
               paddingTop: 15,
               paddingBottom: 10,
               borderRadius: 5,
-              backgroundColor: colors.primary3,
-              // backgroundColor: 'rgba(10,10,10,0.7)',
+              // marginLeft: -5,
+              // backgroundColor: colors.primary3,
+              backgroundColor: 'rgba(10,10,10,0.6)',
             }}
             data={data}
-            width={windowWidth - (windowWidth * 0.2)}
+            width={windowWidth - (windowWidth * 0.3)}
             height={220}
             yAxisLabel="$"
             withVerticalLabels
@@ -256,8 +276,8 @@ export default function ProfileScreen({route, navigation}) {
             fromZero={false}
             withInnerLines={false}
             chartConfig={chartConfig}
-            // verticalLabelRotation={0}
-            // horizontalLabelRotation={0}
+            verticalLabelRotation={0}
+            // horizontalLabelRotation={-10}
           />
         </View>
 
@@ -265,22 +285,34 @@ export default function ProfileScreen({route, navigation}) {
         <View
           style={tableView(colors.primary3)}>
           <DataTable>
-            <DataTable.Pagination
-              page={1}
-              numberOfPages={3}
-              onPageChange={page => {
-                console.log(page);
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
               }}
-              label={<Text style={{
-                  fontSize: 20, fontWeight: "bold", color: colors.text,
-                }}>{"Today"}</Text>}
-            />
+            >
+            <Text style={{
+              fontSize: 16, fontWeight: "bold", color: colors.text, marginTop: 5
+            }}>{"Today"}</Text>
+            </View>
+            {/*<DataTable.Pagination*/}
+            {/*  page={1}*/}
+            {/*  numberOfPages={3}*/}
+            {/*  onPageChange={page => {*/}
+            {/*    console.log(page);*/}
+            {/*  }}*/}
+            {/*  label={<Text style={{*/}
+            {/*      fontSize: 16, fontWeight: "bold", color: colors.text,*/}
+            {/*    }}>{"Today"}</Text>}*/}
+            {/*/>*/}
 
             <DataTable.Header>
               <DataTable.Cell>
                 <Text
                   style={{
-                    fontSize: 18, fontWeight: "bold", color: colors.text,
+                    fontSize: 14, fontWeight: "bold", color: colors.text,
                   }}
                 >
                   {"Expense Item"}
@@ -289,7 +321,7 @@ export default function ProfileScreen({route, navigation}) {
               <DataTable.Cell numeric>
                 <Text
                   style={{
-                    fontSize: 18, fontWeight: "bold", color: colors.text,
+                    fontSize: 14, fontWeight: "bold", color: colors.text,
                   }}
                 >
                   {"Budget($)"}
@@ -298,8 +330,12 @@ export default function ProfileScreen({route, navigation}) {
             </DataTable.Header>
             {expenses.map((expense) => (
               <DataTable.Row>
-                <DataTable.Cell>{expense.item}</DataTable.Cell>
-                <DataTable.Cell numeric>{expense.amount}</DataTable.Cell>
+                <DataTable.Cell style={{fontSize: 12, color: colors.text,}}>
+                  {expense.item}
+                </DataTable.Cell>
+                <DataTable.Cell style={{fontSize: 12, color: colors.text,}} numeric>
+                  {expense.amount}
+                </DataTable.Cell>
               </DataTable.Row>
             ))}
           </DataTable>
@@ -398,14 +434,14 @@ const viewTop = function() {
 
 const text1 = function(primary3) {
   return {
-    fontSize: 36,
+    fontSize: 30,
     color: primary3,
   }
 }
 
 const text2 = function(primary3) {
   return {
-    fontSize: 36,
+    fontSize: 30,
     color: primary3,
     marginBottom: 10,
     fontWeight: "bold"
@@ -414,7 +450,7 @@ const text2 = function(primary3) {
 
 const text3 = function(primary3) {
   return {
-    fontSize: 18,
+    fontSize: 16,
     color: primary3,
     marginBottom: 10,
   }
@@ -439,20 +475,20 @@ const cardInnerSplit = function() {
   }
 }
 
-const progressBarLeft = function(userInfo, secondary) {
+const progressBarLeft = function(windowWidth, userInfo, secondary) {
   return {
-    width: 180*(userInfo.goalProgress/100),
-    height: 25,
+    width: (windowWidth/2)*(userInfo.goalProgress/100),
+    height: 22,
     marginTop: 10,
     backgroundColor: secondary,
     borderRadius: 20
   }
 }
 
-const progressBarRight = function(userInfo, primary) {
+const progressBarRight = function(windowWidth, userInfo, primary) {
   return {
-    width: 180*((115-userInfo.goalProgress)/100),
-    height: 25,
+    width: (windowWidth/2)*((115-userInfo.goalProgress)/100),
+    height: 22,
     marginLeft: -20,
     marginTop: 10,
     backgroundColor: primary,
