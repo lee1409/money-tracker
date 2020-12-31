@@ -1,30 +1,32 @@
 // In App.js in a new project
 
 import * as React from 'react';
-import { View, Text, FlatList, ImageBackground, StyleSheet, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, FlatList, ImageBackground, StyleSheet, TouchableOpacity, VirtualizedList } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { FloatingAction } from "react-native-floating-action";
 import Swipeable from 'react-native-swipeable';
 import Dialog, { DialogFooter, DialogButton, DialogContent } from 'react-native-popup-dialog';
+import { useDispatch, useSelector } from "react-redux";
 
-const DATA = [
+const getItem = (data, index) => {
+  return data[index];
+};
+
+const getItemCount = (data) => {
+  return data.length;
+};
+
+const data = [
   {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'Breakfast',
-    Amount: '40'
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Lunch',
-    Amount: '60'
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Dinner',
-    Amount: '80'
-  },
-];
+    uid: 123,
+    amount: 90,
+    category: null,
+    name: 'grocery',
+    day: new Date().getDay(),
+
+  }
+]
 
 const COMPLETED = [
   {
@@ -38,7 +40,6 @@ const COMPLETED = [
 ];
 
 const actions = [
-
   {
     text: "Create event",
     icon: require("../assets/category_icon.png"),
@@ -143,10 +144,18 @@ export default function HomeScreen({ navigation }) {
   const [visible, setVisible] = React.useState(false);
   const [visible_save, setVisible_save] = React.useState(false);
 
-  const renderItem = ({ item }) => (
+
+  const events = useSelector((state) => state.events);
+
+  const results = events;
+  const [result, setResult] = React.useState(results);
+
+
+  const renderItem = ({ item, index }) => (
     <Item
-      title={item.title}
-      Amount={item.Amount}
+      item = {result}
+      title={item.name}
+      Amount={item.amount}
       visible={visible}
       visible_save={visible_save}
       onPress={() => setVisible(true)}
@@ -170,15 +179,21 @@ export default function HomeScreen({ navigation }) {
         </View>
 
         <View style={{ height: '40%' }}>
-          <FlatList
+          <VirtualizedList
             style={{ flex: 1 }}
-            data={DATA}
+            keyExtractor={(item, index) => {
+              return item[index];
+            }}
+            // here
+            data={results}
+            getItem={getItem}
+            getItemCount={getItemCount}
             renderItem={renderItem}
           />
         </View>
 
         <View>
-          <Text style = {{padding:10, fontSize:25, color:'#717171'}}>Completed</Text>
+          <Text style={{ padding: 10, fontSize: 25, color: '#717171' }}>Completed</Text>
         </View>
 
         <View>
@@ -188,8 +203,6 @@ export default function HomeScreen({ navigation }) {
             keyExtractor={item => item.title}
           />
         </View>
-
-
 
         <FloatingAction
           horizontal={true}
@@ -230,7 +243,7 @@ const styles = StyleSheet.create({
   },
   completed_text: {
     fontSize: 20,
-    marginHorizontal:10,
+    marginHorizontal: 10,
     padding: 10,
     color: '#EF7971',
     textDecorationLine: 'line-through'
