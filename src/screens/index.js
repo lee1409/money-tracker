@@ -7,6 +7,7 @@ import HomeScreen from "./home-screen";
 import CreateEventScreen from './create-event-screen';
 import CreateCategoryScreen from "./create-category-screen";
 
+
 const Stack = createStackNavigator();
 
 export default function App() {
