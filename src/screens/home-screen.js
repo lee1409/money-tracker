@@ -2,12 +2,14 @@
 
 import * as React from 'react';
 import { View, Text, FlatList, ImageBackground, StyleSheet, TouchableOpacity, VirtualizedList } from 'react-native';
+import { Dialog, Portal, Paragraph, Button } from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { FloatingAction } from "react-native-floating-action";
 import Swipeable from 'react-native-swipeable';
-import Dialog, { DialogFooter, DialogButton, DialogContent } from 'react-native-popup-dialog';
 import { useDispatch, useSelector } from "react-redux";
+import { addHistory, initHistory, updateHistory } from '../redux/actions';
+import { createUUID } from "../utils/index";
 
 const getItem = (data, index) => {
   return data[index];
@@ -16,28 +18,6 @@ const getItem = (data, index) => {
 const getItemCount = (data) => {
   return data.length;
 };
-
-const data = [
-  {
-    uid: 123,
-    amount: 90,
-    category: null,
-    name: 'grocery',
-    day: new Date().getDay(),
-
-  }
-]
-
-const COMPLETED = [
-  {
-    title: 'Grocery',
-    Amount: '50'
-  },
-  {
-    title: 'Transport',
-    Amount: '80'
-  },
-];
 
 const actions = [
   {
@@ -62,112 +42,122 @@ const Completed_item = ({ title, amount }) => (
   </View>
 );
 
-const Item = ({ title, Amount, visible, onPress, onPress1, visible_save, onPress_save, onPress1_save }) => (
-  <Swipeable style={{ margin: 8 }}
-    rightButtons={[
-      <View style={[styles.rightSwipeItem, { backgroundColor: '#72C4A6' }]}>
-        <TouchableOpacity onPress={onPress_save}>
-          <Text style={styles.text}>Just nice</Text>
-        </TouchableOpacity>
-        <Dialog
-          visible={visible_save}
-          footer={
-            <DialogFooter >
-              <DialogButton
-                text={<Text style={[styles.dialog_button, { color: '#72C4A6' }]}>${Amount * 0.05} -${Amount * 0.1}</Text>}
-                onPress={() => { }}
-              />
-              <DialogButton
-                text={<Text style={[styles.dialog_button, { color: '#72C4A6' }]}>${Amount * 0.15} -${Amount * 0.2}</Text>}
-                onPress={() => { }}
-              />
-              <DialogButton
-                text={<Text style={[styles.dialog_button, { color: '#72C4A6' }]}> {'< '}${Amount * 0.2}</Text>}
-                onPress={() => { }}
-              />
-            </DialogFooter>
-          }
-          onTouchOutside={onPress1_save}
-
-        >
-          <DialogContent>
-            <Text style={[styles.dialog_button, { color: '#72C4A6' }]}>How much you save on it?</Text>
-          </DialogContent>
-        </Dialog>
-      </View>,
-
-      <View style={[styles.rightSwipeItem, { backgroundColor: '#EF7971' }]}>
-        <TouchableOpacity onPress={onPress}>
-          <Text style={styles.text}>Overspent</Text>
-        </TouchableOpacity>
-        <Dialog
-          visible={visible}
-          footer={
-            <DialogFooter >
-              <DialogButton
-                text={<Text style={[styles.dialog_button, { color: '#EF7971' }]}>${Amount * 0.05} -${Amount * 0.1}</Text>}
-                onPress={() => { }}
-              />
-              <DialogButton
-                text={<Text style={[styles.dialog_button, { color: '#EF7971' }]}>${Amount * 0.15} -${Amount * 0.2}</Text>}
-                onPress={() => { }}
-              />
-              <DialogButton
-                text={<Text style={[styles.dialog_button, { color: '#EF7971' }]}> {'> '}${Amount * 0.2}</Text>}
-                onPress={() => { }}
-              />
-            </DialogFooter>
-          }
-          onTouchOutside={onPress1}
-
-        >
-          <DialogContent>
-            <Text style={[styles.dialog_button, { color: '#EF7971' }]}>How much you spend on it?</Text>
-          </DialogContent>
-        </Dialog>
-      </View>
-
-    ]}
-  >
-    <View style={[styles.listItem, { backgroundColor: '#F0CFA3' }]}>
-      <Text style={[styles.arrow, { color: '#72C4A6' }]}>←</Text>
-      <Text style={styles.text}>{title} for {Amount}</Text>
-      <Text style={[styles.arrow, { color: '#EF7971' }]}>→</Text>
-    </View>
-  </Swipeable>
-);
-
-
 
 export default function HomeScreen({ navigation }) {
 
+  const dispatch = useDispatch();
+
+  //list for completed & uncomleted
+  const [uncompletedList, setUncompletedList] = React.useState([]);
+  const [completedList, setCompletedList] = React.useState([]);
+
+  //item inside dialog
+  const [index_forDialog, setIndexforDialog] = React.useState(null);
+  const [item_forDialog, setItemforDialog] = React.useState(null);
+
+  // control of dialog
   const [visible, setVisible] = React.useState(false);
-  const [visible_save, setVisible_save] = React.useState(false);
+  const showDialog = () => setVisible(true);
+  const hideDialog = () => setVisible(false);
 
+  // tyep of spent( under/ overspent)
+  const [variation, setVariation] = React.useState([]);
 
+  // get day and date
+  const [today, setToday] = React.useState(new Date().getDay());
+  const [today_date, setToday_date] = React.useState(new Date().getDate().toString() + (new Date().getMonth() + 1).toString() + new Date().getFullYear().toString())
+
+  // retrieve and filter (events & events) 
   const events = useSelector((state) => state.events);
+  const today_events = events.filter((item) => item.day == today);
+  const histories = useSelector((state) => state.histories);
+  const today_history = histories.filter((item) => item.date == today_date);
 
-  const results = events;
-  const [result, setResult] = React.useState(results);
+  React.useEffect(() => {
+    if (today_history.length < 1) {
+      // initial history
+      const history = today_events.map(v => (
+        {
+          ...v,
+          date: today_date,
+          isCompleted: false,
+          history_uid: createUUID()
+        }));
+      if (history.length >= 1) { dispatch(initHistory({ history })); }
+      setUncompletedList(history)
+    } else {
+      // after added events
+      const history_1 = events.map(v => (
+        {
+          ...v,
+          date: today_date,
+          isCompleted: false,
+          history_uid: createUUID()
+        }));
+      const history = history_1[events.length - 1]
+      dispatch(addHistory({ history }));
+      const today_history_notCompleted = histories.filter((item) => item.isCompleted == false)
+      today_history_notCompleted.splice(today_history_notCompleted.length - 1, 0, history)
+      setUncompletedList(today_history_notCompleted)
+    }
+  }, [events]);
 
+  React.useEffect(() => {
+    //edited completedlist
+    const today_history_Completed = histories.filter((item) => item.isCompleted == true)
+    setCompletedList(today_history_Completed)
+
+  }, [uncompletedList]);
 
   const renderItem = ({ item, index }) => (
-    <Item
-      item = {result}
-      title={item.name}
-      Amount={item.amount}
-      visible={visible}
-      visible_save={visible_save}
-      onPress={() => setVisible(true)}
-      onPress1={() => setVisible(false)}
-      onPress_save={() => setVisible_save(true)}
-      onPress1_save={() => setVisible_save(false)} />
+    <Swipeable style={{ margin: 8 }}
+      rightButtons={[
+        <View style={[styles.rightSwipeItem, { backgroundColor: '#72C4A6' }]}>
+          <TouchableOpacity onPress={() => {
+            setVisible(true)
+            setIndexforDialog(index)
+            setItemforDialog(item.amount)
+            setVariation([1, 2, 3])
+          }}>
+            <Text style={styles.text}>Just nice</Text>
+          </TouchableOpacity>
+          <MyDialog
+            visible={visible}
+            hideDialog={hideDialog}
+            uncompletedList={uncompletedList}
+            item={item_forDialog}
+            index={index_forDialog}
+            setUncompletedList={setUncompletedList}
+            dispatch={dispatch}
+            variation={variation}
+          ></MyDialog>
+        </View>,
+
+        <View style={[styles.rightSwipeItem, { backgroundColor: '#EF7971' }]}>
+          <TouchableOpacity onPress={() => {
+            setVisible(true)
+            setIndexforDialog(index)
+            setItemforDialog(item.amount)
+            setVariation([4, 5, 6])
+          }}>
+            <Text style={styles.text}>Overspent</Text>
+          </TouchableOpacity>
+        </View>
+
+      ]}
+    >
+      <View style={[styles.listItem, { backgroundColor: '#F0CFA3' }]}>
+        <Text style={[styles.arrow, { color: '#72C4A6' }]}> </Text>
+        <Text style={styles.text}>{item.name} for ${item.amount}</Text>
+        <Text style={[styles.arrow, { color: '#EF7971' }]}>→</Text>
+      </View>
+    </Swipeable>
   );
 
   const renderItem_completed = ({ item }) => (
     <Completed_item
-      title={item.title}
-      Amount={item.Amount} />
+      title={item.name}
+      amount={item.amount} />
   );
 
   return (
@@ -185,7 +175,7 @@ export default function HomeScreen({ navigation }) {
               return item[index];
             }}
             // here
-            data={results}
+            data={uncompletedList}
             getItem={getItem}
             getItemCount={getItemCount}
             renderItem={renderItem}
@@ -198,7 +188,7 @@ export default function HomeScreen({ navigation }) {
 
         <View>
           <FlatList
-            data={COMPLETED}
+            data={completedList}
             renderItem={renderItem_completed}
             keyExtractor={item => item.title}
           />
@@ -218,7 +208,80 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
+const MyDialog = ({ visible, hideDialog, index, setUncompletedList, uncompletedList, item, dispatch, variation }) => {
+  return (
+    <Portal>
+      <Dialog visible={visible} onDismiss={hideDialog}>
+        <Dialog.Title >How much you vary?</Dialog.Title>
+        <Dialog.Actions style={{ justifyContent: 'space-between', flexDirection: 'column' }}>
+          <Button
+            onPress={() => {
+              //update local
+              let copy = Array.from(uncompletedList);
+              copy.splice(index, 1);
+              setUncompletedList(copy);
 
+              //update uncompletedList
+              let history = [uncompletedList[index]]
+              console.log(history)
+              dispatch(updateHistory({ history }))
+              history = history.map(v => (
+                {
+                  ...v,
+                  isCompleted: true,
+                  variation: variation[0]
+                }));
+              history = history[0]
+              dispatch(addHistory({ history }))
+              hideDialog();
+            }}>{(item * 0.01).toFixed(2)} - {(item * 0.1).toFixed(2)}</Button>
+
+          <Button onPress={() => {
+            //update local
+            let copy = Array.from(uncompletedList);
+            copy.splice(index, 1);
+            setUncompletedList(copy);
+
+            //update uncompletedList
+            let history = [uncompletedList[index]]
+            console.log(history)
+            dispatch(updateHistory({ history }))
+            history = history.map(v => (
+              {
+                ...v,
+                isCompleted: true,
+                variation: variation[1]
+              }));
+            history = history[0]
+            dispatch(addHistory({ history }))
+            hideDialog();
+          }}>{(item * 0.11).toFixed(2)} - {(item * 0.2).toFixed(2)}</Button>
+
+          <Button onPress={() => {
+            //update local
+            let copy = Array.from(uncompletedList);
+            copy.splice(index, 1);
+            setUncompletedList(copy);
+
+            //update uncompletedList
+            let history = [uncompletedList[index]]
+            console.log(history)
+            dispatch(updateHistory({ history }))
+            history = history.map(v => (
+              {
+                ...v,
+                isCompleted: true,
+                variation: variation[2]
+              }));
+            history = history[0]
+            dispatch(addHistory({ history }))
+            hideDialog();
+          }}> {'>'} {(item * 0.21).toFixed(2)}</Button>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
+  )
+};
 
 
 const styles = StyleSheet.create({
