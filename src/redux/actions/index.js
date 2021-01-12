@@ -29,10 +29,23 @@ export const addEvent = createAction("ADD_EVENT", (form) => ({
   payload: form
 }))
 
-export const updateEvent = createAction("UPDATE_EVENT", (form) => ({payload: form}));
+export const updateEvent = createAction("UPDATE_EVENT", (form) => ({ payload: form }));
 
-export const deleteEvent = createAction("DELETE_EVENT", (id) => ({payload: id}));
+export const deleteEvent = createAction("DELETE_EVENT", (id) => ({ payload: id }));
 
-export const addCategory = createAction("ADD_CATEGORY", (category) => ({payload: category}));
+export const addCategory = createAction("ADD_CATEGORY", (category) => ({ payload: category }));
 
-export const deleteCategory = createAction('DELETE_CATEGORY', (category) => ({payload: category}));
+export const deleteCategory = createAction('DELETE_CATEGORY', (category) => ({ payload: category }));
+
+export const initHistory = createAction("INITIAL_HISTORY", (history) => ({
+  payload: history
+}))
+
+export const addHistory = createAction("ADD_HISTORY", (history) => ({
+  payload: history
+}))
+
+export const updateHistory = createAction("UPDATE_HISTORY", (history) => ({ payload: history }));
+
+
+

@@ -8,6 +8,7 @@ import CreateEventScreen from './create-event-screen';
 import CreateCategoryScreen from "./create-category-screen";
 import ProfileScreen from "./profile-screen";
 
+
 const Stack = createStackNavigator();
 
 export default function App() {

@@ -4,7 +4,8 @@ import todos from "./todos";
 import visibilityFilter from "./visibilityFilter";
 
 import { addEvent, updateEvent, deleteEvent } from "../actions/index";
-import { addCategory, deleteCategory} from '../actions/index'
+import { addCategory, deleteCategory } from '../actions/index'
+import { addHistory, initHistory, updateHistory } from '../actions/index'
 
 const events = createReducer([], (builder) => {
   builder.addCase(addEvent, (state, action) => {
@@ -21,9 +22,22 @@ const categories = createReducer([], (builder) => {
   })
 })
 
+const histories = createReducer([], (builder) => {
+  builder.addCase(initHistory, (state, action) => {
+    return action.payload.history
+  }).addCase(addHistory, (state, action) => {
+    state.push(action.payload.history)
+  }).addCase(updateHistory, (state, action) => {
+    console.log(state.indexOf(action.payload.history))
+    let index = state.indexOf(action.payload.history);
+    state.splice(index, 1);
+  })
+});
+
 export default combineReducers({
   todos,
   visibilityFilter,
   events,
   categories,
+  histories,
 });
