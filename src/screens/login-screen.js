@@ -40,7 +40,7 @@ export default function LoginScreen({ navigation }) {
   const responseListener = useRef();
 
   //verify first access
-  const [firstAccess, setFirstAccess] = useState("true");
+  const [firstAccess, setFirstAccess] = useState(true);
   const checkFirstAccess = () => {
     if (keys.length > 0) {
       setFirstAccess(false);
