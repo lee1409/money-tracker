@@ -14,12 +14,17 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Fab from "../components/fab";
 import * as Notifications from "expo-notifications";
 import * as Permissions from "expo-permissions";
-import { Paragraph, Button, Dialog, Portal } from "react-native-paper";
 import * as LocalAuthentication from "expo-local-authentication";
 import Image from "react-native-scalable-image";
 import { addKey, deleteKey } from "../redux/actions/index";
 import { useDispatch, useSelector } from "react-redux";
-
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 export default function LoginScreen({ navigation }) {
   //redux - store keys
   const [key, setKey] = React.useState({
@@ -33,11 +38,6 @@ export default function LoginScreen({ navigation }) {
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
-
-  //dialog that asks to enable authentication
-  const [visible, setVisible] = React.useState(false);
-  const hideDialog = () => setVisible(false);
-  const showDialog = () => setVisible(true);
 
   //verify first access
   const [firstAccess, setFirstAccess] = useState("true");
@@ -56,7 +56,6 @@ export default function LoginScreen({ navigation }) {
 
   //get allow_auth key from Redux
   const [allowAuth, setAllowAuth] = useState(key.allow_auth);
-
   //fingerprint authentication
   const [authVisible, setAuthVisible] = React.useState(false);
   const fingerPrintImage = require("../../assets/fingerprint.gif");
@@ -84,17 +83,15 @@ export default function LoginScreen({ navigation }) {
     checkFirstAccess();
     if (firstAccess) {
       schedulePushNotification();
-      showDialog();
       saveFirstAccess();
+    }
+    if (allowAuth) {
+      setAuthVisible(true);
+      checkDeviceForHardware();
+      checkForFingerprints();
     } else {
-      if (allowAuth) {
-        setAuthVisible(true);
-        checkDeviceForHardware();
-        checkForFingerprints();
-      } else {
-        navigation.navigate("Home", { screen: "Login" });
-        return;
-      }
+      navigation.navigate("Home", { screen: "Login" });
+      return;
     }
 
     registerForPushNotificationsAsync().then((token) =>
@@ -131,53 +128,12 @@ export default function LoginScreen({ navigation }) {
               </View>
             </View>
             <View>
-              <Text style={styles.fpText}>
-                Tap to login via 
-              </Text>
-              <Text style={styles.fpText}>
-                fingerprint authentication
-              </Text>
+              <Text style={styles.fpText}>Tap to login via</Text>
+              <Text style={styles.fpText}>fingerprint authentication</Text>
             </View>
           </TouchableOpacity>
         ) : null}
       </View>
-      <Dialog visible={visible} onDismiss={hideDialog}>
-        <Dialog.Title>Alert</Dialog.Title>
-        <Dialog.Content>
-          <Paragraph>Enable fingerprint authentication?</Paragraph>
-        </Dialog.Content>
-        <Dialog.Actions>
-          <Button
-            onPress={async () => {
-              hideDialog();
-              try {
-                //update allow_auth in Redux
-                dispatch(deleteKey({ key }));
-                const key2 = keys.map((v) => ({
-                  ...v,
-                  allow_auth: true,
-                }));
-                let key = key2[0];
-                dispatch(addKey({ key }));
-                setAuthVisible(true);
-                scanFingerprint();
-              } catch (e) {
-                console.log("Failed to save STORAGE_KEY_ENABLE_AUTH");
-              }
-            }}
-          >
-            YES
-          </Button>
-          <Button
-            onPress={async () => {
-              hideDialog();
-              navigation.navigate("Home", { screen: "Login" });
-            }}
-          >
-            NO
-          </Button>
-        </Dialog.Actions>
-      </Dialog>
     </View>
   );
 }
@@ -239,9 +195,8 @@ async function schedulePushNotification() {
   console.log("Schedule reminder at 8pm every day");
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: "Have you recorded your expense today?",
+      title: "Have you recorded your expense today? 💰",
       body: "Record it now!",
-      data: { data: "" },
     },
     trigger: { hour: 20, minute: 0, repeats: true },
   });
