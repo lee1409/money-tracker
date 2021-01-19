@@ -95,8 +95,8 @@ export default function ProfileScreen({route, navigation}) {
       style={{flex: 1, backgroundColor: colors.primary2, padding: 24}}
     >
       <ScrollView style={styles.scrollView}>
-        <View  style={viewTop()}>
-          <Text style={text1(colors.primary3)}>
+        <View  style={styles.viewTop}>
+          <Text style={styles.text1}>
             Hi
           </Text>
           <IconButton
@@ -109,16 +109,16 @@ export default function ProfileScreen({route, navigation}) {
             }}
           ></IconButton>
         </View>
-        <Text style={text2(colors.primary3)}>
+        <Text style={styles.text2}>
           {userInfo.name}
         </Text>
-        <Text style={text3(colors.primary3)}>
+        <Text style={styles.text3}>
           Take a look at your accomplishment
         </Text>
 
         {/*--------streak & score---------------------------------*/}
 
-        <View style={twoCardView()}>
+        <View style={styles.twoCardView}>
           <Card
             style={{
               flex: 1,
@@ -283,7 +283,7 @@ export default function ProfileScreen({route, navigation}) {
 
         {/*-----expenses table------------------------------------*/}
         <View
-          style={tableView(colors.primary3)}>
+          style={styles.tableView}>
           <DataTable>
             <View
               style={{
@@ -355,6 +355,7 @@ export default function ProfileScreen({route, navigation}) {
       <Portal>
         <Modal visible={visible} onDismiss={hideModal}
                contentContainerStyle={{backgroundColor: 'white',
+                 // padding: 20,
                  paddingTop: 20, paddingBottom: 20,
                  marginLeft: 50, marginRight:50,
                  borderRadius:5}}
@@ -410,7 +411,7 @@ export default function ProfileScreen({route, navigation}) {
         </Modal>
       </Portal>
       <FAB icon="plus"
-           style={fab(colors.accent2)}
+           style={styles.fab}
            onPress={() => showModal()}>
       </FAB>
       <View style={backgroundCircle1(windowWidth, windowHeight,colors.primary)} />
@@ -420,60 +421,55 @@ export default function ProfileScreen({route, navigation}) {
 }
 
 const styles = StyleSheet.create({
-
-})
-
-const viewTop = function() {
-  return {
+  viewTop: {
     flexGrow: 0,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-  }
-}
-
-const text1 = function(primary3) {
-  return {
+  },
+  text1: {
     fontSize: 30,
-    color: primary3,
-  }
-}
-
-const text2 = function(primary3) {
-  return {
+    color: "#FFF9F0",
+  },
+  text2: {
     fontSize: 30,
-    color: primary3,
+    color: "#FFF9F0",
     marginBottom: 10,
     fontWeight: "bold"
-  }
-}
-
-const text3 = function(primary3) {
-  return {
+  },
+  text3: {
     fontSize: 16,
-    color: primary3,
+    color: "#FFF9F0",
     marginBottom: 10,
-  }
-}
-
-const twoCardView = function() {
-  return {
+  },
+  twoCardView: {
     display: "flex",
     flexGrow: 0,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-  }
-}
-
-const cardInnerSplit = function() {
-  return {
+  },
+  cardInnerSplit: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-  }
-}
+  },
+  tableView: {
+    marginTop: 10,
+    marginBottom: 25,
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: "#F0CFA3",
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "#488B80"
+  },
+})
 
 const progressBarLeft = function(windowWidth, userInfo, secondary) {
   return {
@@ -494,26 +490,6 @@ const progressBarRight = function(windowWidth, userInfo, primary) {
     backgroundColor: primary,
     borderRadius: 20,
     zIndex: -1
-  }
-}
-
-const tableView = function(primary3) {
-  return {
-    marginTop: 10,
-    marginBottom: 25,
-    padding: 10,
-    borderRadius: 5,
-    backgroundColor: primary3,
-  }
-}
-
-const fab = function(accent2) {
-  return {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
-    backgroundColor: accent2
   }
 }
 

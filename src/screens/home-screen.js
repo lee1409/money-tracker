@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { View, Text, FlatList, ImageBackground, StyleSheet, TouchableOpacity, VirtualizedList } from 'react-native';
-import { Dialog, Portal, Paragraph, Button } from 'react-native-paper';
+import {Dialog, Portal, Paragraph, Button, IconButton} from 'react-native-paper';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { FloatingAction } from "react-native-floating-action";
@@ -10,6 +10,7 @@ import Swipeable from 'react-native-swipeable';
 import { useDispatch, useSelector } from "react-redux";
 import { addHistory, initHistory, updateHistory } from '../redux/actions';
 import { createUUID } from "../utils/index";
+import {Icon} from "react-native-elements";
 
 const getItem = (data, index) => {
   return data[index];
@@ -67,7 +68,7 @@ export default function HomeScreen({ navigation }) {
   const [today, setToday] = React.useState(new Date().getDay());
   const [today_date, setToday_date] = React.useState(new Date().getDate().toString() + (new Date().getMonth() + 1).toString() + new Date().getFullYear().toString())
 
-  // retrieve and filter (events & events) 
+  // retrieve and filter (events & events)
   const events = useSelector((state) => state.events);
   const today_events = events.filter((item) => item.day == today);
   const histories = useSelector((state) => state.histories);
@@ -164,8 +165,21 @@ export default function HomeScreen({ navigation }) {
     <View style={styles.container}>
       <ImageBackground source={require("../assets/home_background.png")} style={styles.image}>
 
+        {/*<Icon name='fire' type='font-awesome' color={"red"}*/}
+        {/*      onPress={() => navigation.navigate('Profile')}/>*/}
+
+        <IconButton
+          icon={"menu"}
+          style={{ position: 'absolute', top: 35, right: 15, zIndex: 10 }}
+          color={"#488B80"}
+          onPress={() => {
+            navigation.navigate('Profile');
+          }}
+        ></IconButton>
+
         <View>
           <Text style={styles.date_text}>Today</Text>
+
         </View>
 
         <View style={{ height: '40%' }}>
