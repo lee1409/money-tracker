@@ -1,7 +1,7 @@
 import React from "react";
 import { FloatingAction } from "react-native-floating-action";
 
-export default () => (
+export default ({navigation}) => (
   <FloatingAction
     horizontal={true}
     initialNumToRender={3}
