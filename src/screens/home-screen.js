@@ -225,7 +225,7 @@ export default function HomeScreen({ navigation }) {
           ></IconButton>
         </View>
 
-        <View style={styles.listContainer}>
+        <View style={[styles.listContainer, {flex: 2}]}>
           <VirtualizedList
             // here
             data={uncompletedList}
@@ -241,7 +241,7 @@ export default function HomeScreen({ navigation }) {
           Completed
         </Text>
 
-        <View style={styles.listContainer}>
+        <View style={[styles.listContainer, {flex: 1}]}>
           <FlatList
             data={completedList}
             renderItem={renderItem_completed}
