@@ -1,23 +1,31 @@
-import React from 'react';
-import {StyleSheet} from 'react-native';
-import {FAB} from 'react-native-paper';
+import React from "react";
+import { FloatingAction } from "react-native-floating-action";
 
-
-const MyComponent = ({onPress}) => (
-  <FAB
-    style={styles.fab}
-    icon="plus"
-    onPress={onPress}
+export default () => (
+  <FloatingAction
+    horizontal={true}
+    initialNumToRender={3}
+    actions={actions}
+    color="#488B80"
+    onPressItem={(name) => {
+      navigation.navigate(name);
+    }}
   />
 );
 
-const styles = StyleSheet.create({
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
+const actions = [
+  {
+    text: "Create event",
+    icon: require("../assets/flag.png"),
+    name: "CreateEvent",
+    color: "#488B80",
+    position: 1
   },
-})
-
-export default MyComponent;
+  {
+    text: "Create category",
+    icon: require("../assets/category.png"),
+    name: "CreateCategory",
+    color: "#488B80",
+    position: 2
+  }
+];

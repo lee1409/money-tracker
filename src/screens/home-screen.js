@@ -2,15 +2,12 @@
 
 import * as React from 'react';
 import { View, Text, FlatList, ImageBackground, StyleSheet, TouchableOpacity, VirtualizedList } from 'react-native';
-import {Dialog, Portal, Paragraph, Button, IconButton} from 'react-native-paper';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { FloatingAction } from "react-native-floating-action";
+import {Dialog, Portal, Button, IconButton} from 'react-native-paper';
 import Swipeable from 'react-native-swipeable';
 import { useDispatch, useSelector } from "react-redux";
 import { addHistory, initHistory, updateHistory } from '../redux/actions';
 import { createUUID } from "../utils/index";
-import {Icon} from "react-native-elements";
+import FAB from '../components/fab'
 
 const getItem = (data, index) => {
   return data[index];
@@ -20,22 +17,7 @@ const getItemCount = (data) => {
   return data.length;
 };
 
-const actions = [
-  {
-    text: "Create event",
-    icon: require("../assets/category_icon.png"),
-    name: "CreateEvent",
-    color: "#488B80",
-    position: 1
-  },
-  {
-    text: "Create category",
-    icon: require("../assets/category_icon.png"),
-    name: "CreateCategory",
-    color: "#488B80",
-    position: 2
-  }
-];
+
 
 const Completed_item = ({ title, amount }) => (
   <View>
@@ -45,7 +27,6 @@ const Completed_item = ({ title, amount }) => (
 
 
 export default function HomeScreen({ navigation }) {
-
   const dispatch = useDispatch();
 
   //list for completed & uncomleted
@@ -58,15 +39,14 @@ export default function HomeScreen({ navigation }) {
 
   // control of dialog
   const [visible, setVisible] = React.useState(false);
-  const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
 
   // tyep of spent( under/ overspent)
   const [variation, setVariation] = React.useState([]);
 
   // get day and date
-  const [today, setToday] = React.useState(new Date().getDay());
-  const [today_date, setToday_date] = React.useState(new Date().getDate().toString() + (new Date().getMonth() + 1).toString() + new Date().getFullYear().toString())
+  const [today] = React.useState(new Date().getDay());
+  const [today_date] = React.useState(new Date().getDate().toString() + (new Date().getMonth() + 1).toString() + new Date().getFullYear().toString())
 
   // retrieve and filter (events & events)
   const events = useSelector((state) => state.events);
@@ -144,7 +124,6 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.text}>Overspent</Text>
           </TouchableOpacity>
         </View>
-
       ]}
     >
       <View style={[styles.listItem, { backgroundColor: '#F0CFA3' }]}>
@@ -208,15 +187,7 @@ export default function HomeScreen({ navigation }) {
           />
         </View>
 
-        <FloatingAction
-          horizontal={true}
-          initialNumToRender={3}
-          actions={actions}
-          color="#488B80"
-          onPressItem={name => {
-            navigation.navigate(name);
-          }}
-        />
+        <FAB></FAB>
       </ImageBackground>
     </View>
   );
