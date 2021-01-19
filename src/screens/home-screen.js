@@ -9,8 +9,16 @@ import {
   StyleSheet,
   TouchableOpacity,
   VirtualizedList,
+  TouchableHighlight,
 } from "react-native";
-import { Dialog, Portal, Button, IconButton } from "react-native-paper";
+import {
+  Dialog,
+  Portal,
+  Button,
+  IconButton,
+  useTheme,
+} from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Swipeable from "react-native-swipeable";
 import { useDispatch, useSelector } from "react-redux";
 import { addHistory, initHistory, updateHistory } from "../redux/actions";
@@ -34,7 +42,14 @@ const Completed_item = ({ title, amount }) => (
   </View>
 );
 
+const today = new Date().getDay();
+const todayDate =
+  new Date().getDate().toString() +
+  (new Date().getMonth() + 1).toString() +
+  new Date().getFullYear().toString();
+
 export default function HomeScreen({ navigation }) {
+  const theme = useTheme();
   const dispatch = useDispatch();
 
   //list for completed & uncomleted
@@ -52,26 +67,18 @@ export default function HomeScreen({ navigation }) {
   // tyep of spent( under/ overspent)
   const [variation, setVariation] = React.useState([]);
 
-  // get day and date
-  const [today] = React.useState(new Date().getDay());
-  const [today_date] = React.useState(
-    new Date().getDate().toString() +
-      (new Date().getMonth() + 1).toString() +
-      new Date().getFullYear().toString()
-  );
-
   // retrieve and filter (events & events)
   const events = useSelector((state) => state.events);
   const today_events = events.filter((item) => item.day == today);
   const histories = useSelector((state) => state.histories);
-  const today_history = histories.filter((item) => item.date == today_date);
+  const today_history = histories.filter((item) => item.date == todayDate);
 
   React.useEffect(() => {
-    if (today_history.length < 1) {
+    if (!today_history.length) {
       // initial history
       const history = today_events.map((v) => ({
         ...v,
-        date: today_date,
+        date: todayDate,
         isCompleted: false,
         history_uid: createUUID(),
       }));
@@ -83,7 +90,7 @@ export default function HomeScreen({ navigation }) {
       // after added events
       const history_1 = events.map((v) => ({
         ...v,
-        date: today_date,
+        date: todayDate,
         isCompleted: false,
         history_uid: createUUID(),
       }));
@@ -112,50 +119,73 @@ export default function HomeScreen({ navigation }) {
   const renderItem = ({ item, index }) => (
     <Swipeable
       style={{ margin: 8 }}
-      rightButtons={[
-        <View style={[styles.rightSwipeItem, { backgroundColor: "#72C4A6" }]}>
-          <TouchableOpacity
-            onPress={() => {
-              setVisible(true);
-              setIndexforDialog(index);
-              setItemforDialog(item.amount);
-              setVariation([1, 2, 3]);
+      onLeftActionRelease={() => {
+        setVisible(true);
+        setIndexforDialog(index);
+        setItemforDialog(item.amount);
+        setVariation([1, 2, 3]);
+      }}
+      onRightActionRelease={() => {
+        setVisible(true);
+        setIndexforDialog(index);
+        setItemforDialog(item.amount);
+        setVariation([4, 5, 6]);
+      }}
+      leftContent={
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "flex-end",
+            backgroundColor: theme.colors.secondary,
+            paddingRight: 12,
+          }}
+        >
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 18,
             }}
           >
-            <Text style={styles.text}>Just nice</Text>
-          </TouchableOpacity>
-          <MyDialog
-            visible={visible}
-            hideDialog={hideDialog}
-            uncompletedList={uncompletedList}
-            item={item_forDialog}
-            index={index_forDialog}
-            setUncompletedList={setUncompletedList}
-            dispatch={dispatch}
-            variation={variation}
-          ></MyDialog>
-        </View>,
-
-        <View style={[styles.rightSwipeItem, { backgroundColor: "#EF7971" }]}>
-          <TouchableOpacity
-            onPress={() => {
-              setVisible(true);
-              setIndexforDialog(index);
-              setItemforDialog(item.amount);
-              setVariation([4, 5, 6]);
+            Just Nice
+          </Text>
+        </View>
+      }
+      rightContent={
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            backgroundColor: theme.colors.primary,
+            paddingLeft: 12,
+          }}
+        >
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 18,
             }}
           >
-            <Text style={styles.text}>Overspent</Text>
-          </TouchableOpacity>
-        </View>,
-      ]}
+            Overspent
+          </Text>
+        </View>
+      }
     >
-      <View style={[styles.listItem, { backgroundColor: "#F0CFA3" }]}>
-        <Text style={[styles.arrow, { color: "#72C4A6" }]}> </Text>
+      <View
+        style={{
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          height: 72,
+          backgroundColor: theme.colors.primary2,
+        }}
+      >
         <Text style={styles.text}>
           {item.name} for ${item.amount}
         </Text>
-        <Text style={[styles.arrow, { color: "#EF7971" }]}>→</Text>
       </View>
     </Swipeable>
   );
@@ -165,7 +195,9 @@ export default function HomeScreen({ navigation }) {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.primary3 }]}
+    >
       <ImageBackground
         source={require("../assets/home_background.png")}
         style={styles.image}
@@ -173,25 +205,28 @@ export default function HomeScreen({ navigation }) {
         {/*<Icon name='fire' type='font-awesome' color={"red"}*/}
         {/*      onPress={() => navigation.navigate('Profile')}/>*/}
 
-        <IconButton
-          icon={"menu"}
-          style={{ position: "absolute", top: 35, right: 15, zIndex: 10 }}
-          color={"#488B80"}
-          onPress={() => {
-            navigation.navigate("Profile");
-          }}
-        ></IconButton>
-
-        <View>
-          <Text style={styles.date_text}>Today</Text>
+        <View style={styles.titleContainer}>
+          <Text
+            style={{
+              fontSize: 36,
+              flex: 1,
+              color: theme.colors.primary,
+            }}
+          >
+            Today
+          </Text>
+          <IconButton
+            size={36}
+            icon={"menu-open"}
+            color={theme.colors.accent2}
+            onPress={() => {
+              navigation.push("Profile");
+            }}
+          ></IconButton>
         </View>
 
-        <View style={{ height: "40%" }}>
+        <View style={styles.listContainer}>
           <VirtualizedList
-            style={{ flex: 1 }}
-            keyExtractor={(item, index) => {
-              return item[index];
-            }}
             // here
             data={uncompletedList}
             getItem={getItem}
@@ -200,23 +235,32 @@ export default function HomeScreen({ navigation }) {
           />
         </View>
 
-        <View>
-          <Text style={{ padding: 10, fontSize: 25, color: "#717171" }}>
-            Completed
-          </Text>
-        </View>
+        <Text
+          style={{ fontSize: 18, color: theme.colors.text, marginVertical: 12 }}
+        >
+          Completed
+        </Text>
 
-        <View>
+        <View style={styles.listContainer}>
           <FlatList
             data={completedList}
             renderItem={renderItem_completed}
             keyExtractor={(item) => item.title}
           />
         </View>
-
-        <FAB></FAB>
       </ImageBackground>
-    </View>
+      <FAB navigation={navigation}></FAB>
+      <MyDialog
+        visible={visible}
+        hideDialog={hideDialog}
+        uncompletedList={uncompletedList}
+        item={item_forDialog}
+        index={index_forDialog}
+        setUncompletedList={setUncompletedList}
+        dispatch={dispatch}
+        variation={variation}
+      ></MyDialog>
+    </SafeAreaView>
   );
 }
 
@@ -316,17 +360,24 @@ const MyDialog = ({
 };
 
 const styles = StyleSheet.create({
+  titleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 24,
+  },
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+  },
+
+  listContainer: {
+    flex: 1,
+    marginVertical: 12,
   },
   image: {
     flex: 1,
     flexDirection: "column",
-    justifyContent: "flex-start",
-    width: "100%",
-    height: "100%",
+    paddingHorizontal: 12,
   },
   date_text: {
     fontSize: 50,
