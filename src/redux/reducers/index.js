@@ -10,6 +10,7 @@ import {
   updatelastAccess,
   updateToday,
   incHotSteak,
+  resetHotSteak
 } from "../actions/index";
 import { addCategory, deleteCategory } from "../actions/index";
 import {
@@ -49,6 +50,15 @@ const today = createReducer([], (builder) => {
     });
 });
 
+const hotSteak = createReducer(1, (builder) => {
+  builder.addCase(incHotSteak, (state) => {
+    state++;
+  }).addCase(resetHotSteak, (state) => {
+    state = 1;
+  });
+});
+
+
 const lastAccess = createReducer(new Date().toDateString(), (builder) => {
   builder.addCase(updatelastAccess(), (state) => {
     state = new Date().toDateString();
@@ -81,4 +91,5 @@ export default combineReducers({
   histories,
   lastAccess,
   today,
+  hotSteak,
 });
