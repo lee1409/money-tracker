@@ -1,5 +1,3 @@
-// In App.js in a new project
-
 import * as React from "react";
 import {
   View,
@@ -18,24 +16,27 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Swipeable from "../components/swipable";
 import { useDispatch, useSelector } from "react-redux";
-import { addHistory, initHistory, updateHistory } from "../redux/actions";
-import { createUUID } from "../utils/index";
+import {
+  addBulkHistory,
+  addHistory,
+  updateHistory,
+  updatelastAccess,
+  updateToday,
+} from "../redux/actions";
 import FAB from "../components/fab";
+import { createSelector } from "@reduxjs/toolkit";
+const _ = require("lodash");
 
-const today = new Date().getDay();
-const todayDate =
-  new Date().getDate().toString() +
-  (new Date().getMonth() + 1).toString() +
-  new Date().getFullYear().toString();
+const getDay = new Date().getDay();
+
+const eventToday = createSelector(
+  state => state.events, 
+  events => events.filter(event => event.day === getDay)
+);
 
 export default function HomeScreen({ navigation }) {
   const theme = useTheme();
   const dispatch = useDispatch();
-
-  //list for completed & uncomleted
-  const [uncompletedList, setUncompletedList] = React.useState([]);
-  const [completedList, setCompletedList] = React.useState([]);
-
   //item inside dialog
   const [index_forDialog, setIndexforDialog] = React.useState(null);
   const [item_forDialog, setItemforDialog] = React.useState(null);
@@ -47,54 +48,37 @@ export default function HomeScreen({ navigation }) {
   // tyep of spent( under/ overspent)
   const [variation, setVariation] = React.useState([]);
 
-  // retrieve and filter (events & events)
-  const events = useSelector((state) => state.events);
-  const today_events = events.filter((item) => item.day == today);
-  const histories = useSelector((state) => state.histories);
-  const today_history = histories.filter((item) => item.date == todayDate);
+  const events = useSelector(eventToday);
+  let today = useSelector((state) => state.today);
+  const lastAccess = useSelector((state) => state.lastAccess);
 
   React.useEffect(() => {
-    if (!today_history.length) {
-      // initial history
-      const history = today_events.map((v) => ({
-        ...v,
-        date: todayDate,
-        isCompleted: false,
-        history_uid: createUUID(),
-      }));
-      if (history.length >= 1) {
-        dispatch(initHistory({ history }));
-      }
-      setUncompletedList(history);
-    } else {
-      // after added events
-      const history_1 = events.map((v) => ({
-        ...v,
-        date: todayDate,
-        isCompleted: false,
-        history_uid: createUUID(),
-      }));
-      const history = history_1[events.length - 1];
-      dispatch(addHistory({ history }));
-      const today_history_notCompleted = histories.filter(
-        (item) => item.isCompleted == false
-      );
-      today_history_notCompleted.splice(
-        today_history_notCompleted.length - 1,
-        0,
-        history
-      );
-      setUncompletedList(today_history_notCompleted);
+    // If last access is yesterday
+    let diff = (new Date(new Date().toDateString()) - new Date(lastAccess)) % 86400000;
+    if (diff >= 1) {
+      // Add today into history
+      if (today.length) dispatch(addBulkHistory(today));
+
+      // TODO add hot steak
+
+      // Reset last access
+      dispatch(updatelastAccess());
     }
+    let final = [];
+    today = _.keyBy(today, "uid");
+    for (let key in events) {
+      let obj = Object.assign(
+        {
+          isCompleted: false,
+          date: new Date().toDateString(),
+        },
+        today[key],
+        events[key]
+      );
+      final.push(obj);;
+    }
+    dispatch(updateToday(final));
   }, [events]);
-
-  React.useEffect(() => {
-    //edited completedlist
-    const today_history_Completed = histories.filter(
-      (item) => item.isCompleted == true
-    );
-    setCompletedList(today_history_Completed);
-  }, [uncompletedList]);
 
   const handleActionRelease = (isLeft, item, index) => {
     setVisible(true);
@@ -113,9 +97,6 @@ export default function HomeScreen({ navigation }) {
         source={require("../assets/home_background.png")}
         style={styles.image}
       >
-        {/*<Icon name='fire' type='font-awesome' color={"red"}*/}
-        {/*      onPress={() => navigation.navigate('Profile')}/>*/}
-
         <View style={styles.titleContainer}>
           <Text
             style={{
@@ -135,12 +116,11 @@ export default function HomeScreen({ navigation }) {
             }}
           ></IconButton>
         </View>
-
         <View style={[styles.listContainer, { flex: 2 }]}>
           <VirtualizedList
             // here
-            data={uncompletedList}
-            keyExtractor={(item) => item["history_uid"]}
+            data={today.filter((el) => el.isCompleted === false)}
+            keyExtractor={(item) => item["uid"]}
             getItem={(data, index) => data[index]}
             getItemCount={(data) => data.length}
             renderItem={(item, index) => {
@@ -170,16 +150,15 @@ export default function HomeScreen({ navigation }) {
         </Text>
         <View style={[styles.listContainer, { flex: 1 }]}>
           <VirtualizedList
-            data={completedList}
+            data={today.filter((el) => el.isCompleted === true)}
             getItem={(data, index) => data[index]}
             getItemCount={(data) => data.length}
             // TODO replace item.item to item
             renderItem={(item, index) => {
               console.log(item[index]);
-              return;
-              <Text>{`${item.item.title} for ${item.item.amount}`}</Text>;
+              return <Text>{`for ${item.amount}`}</Text>;
             }}
-            keyExtractor={(item) => item.title}
+            keyExtractor={(item) => item.uid}
             ItemSeparatorComponent={() => (
               <View style={{ width: "100%", height: 8 }}></View>
             )}
@@ -187,7 +166,7 @@ export default function HomeScreen({ navigation }) {
         </View>
       </ImageBackground>
       <FAB navigation={navigation}></FAB>
-      <MyDialog
+      {/* <MyDialog
         visible={visible}
         hideDialog={hideDialog}
         uncompletedList={uncompletedList}
@@ -196,105 +175,11 @@ export default function HomeScreen({ navigation }) {
         setUncompletedList={setUncompletedList}
         dispatch={dispatch}
         variation={variation}
-      ></MyDialog>
+      ></MyDialog> */}
     </SafeAreaView>
   );
 }
 
-const MyDialog = ({
-  visible,
-  hideDialog,
-  index,
-  setUncompletedList,
-  uncompletedList,
-  item,
-  dispatch,
-  variation,
-}) => {
-  return (
-    <Portal>
-      <Dialog visible={visible} onDismiss={hideDialog}>
-        <Dialog.Title>How much you vary?</Dialog.Title>
-        <Dialog.Actions
-          style={{ justifyContent: "space-between", flexDirection: "column" }}
-        >
-          <Button
-            onPress={() => {
-              //update local
-              let copy = Array.from(uncompletedList);
-              copy.splice(index, 1);
-              setUncompletedList(copy);
-
-              //update uncompletedList
-              let history = [uncompletedList[index]];
-              console.log(history);
-              dispatch(updateHistory({ history }));
-              history = history.map((v) => ({
-                ...v,
-                isCompleted: true,
-                variation: variation[0],
-              }));
-              history = history[0];
-              dispatch(addHistory({ history }));
-              hideDialog();
-            }}
-          >
-            {(item * 0.01).toFixed(2)} - {(item * 0.1).toFixed(2)}
-          </Button>
-
-          <Button
-            onPress={() => {
-              //update local
-              let copy = Array.from(uncompletedList);
-              copy.splice(index, 1);
-              setUncompletedList(copy);
-
-              //update uncompletedList
-              let history = [uncompletedList[index]];
-              console.log(history);
-              dispatch(updateHistory({ history }));
-              history = history.map((v) => ({
-                ...v,
-                isCompleted: true,
-                variation: variation[1],
-              }));
-              history = history[0];
-              dispatch(addHistory({ history }));
-              hideDialog();
-            }}
-          >
-            {(item * 0.11).toFixed(2)} - {(item * 0.2).toFixed(2)}
-          </Button>
-
-          <Button
-            onPress={() => {
-              //update local
-              let copy = Array.from(uncompletedList);
-              copy.splice(index, 1);
-              setUncompletedList(copy);
-
-              //update uncompletedList
-              let history = [uncompletedList[index]];
-              console.log(history);
-              dispatch(updateHistory({ history }));
-              history = history.map((v) => ({
-                ...v,
-                isCompleted: true,
-                variation: variation[2],
-              }));
-              history = history[0];
-              dispatch(addHistory({ history }));
-              hideDialog();
-            }}
-          >
-            {" "}
-            {">"} {(item * 0.21).toFixed(2)}
-          </Button>
-        </Dialog.Actions>
-      </Dialog>
-    </Portal>
-  );
-};
 
 const styles = StyleSheet.create({
   titleContainer: {

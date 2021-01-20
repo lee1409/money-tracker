@@ -41,6 +41,8 @@ export const initHistory = createAction("INITIAL_HISTORY", (history) => ({
   payload: history
 }))
 
+export const addBulkHistory = createAction('BULK_ADD_HISTORY', (histories) => ({payload: histories}));
+
 export const addHistory = createAction("ADD_HISTORY", (history) => ({
   payload: history
 }))
@@ -48,4 +50,6 @@ export const addHistory = createAction("ADD_HISTORY", (history) => ({
 export const updateHistory = createAction("UPDATE_HISTORY", (history) => ({ payload: history }));
 
 
+export const updateToday = createAction('UPDATE_TODAY', (today) => ({ payload: today }))
 
+export const updatelastAccess = createAction('UPDATE_LAST_ACCESS')
