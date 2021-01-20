@@ -1,51 +1,35 @@
 // In App.js in a new project
 
-import * as React from 'react';
-import { View, Text, FlatList, ImageBackground, StyleSheet, TouchableOpacity, VirtualizedList } from 'react-native';
-import {Dialog, Portal, Paragraph, Button, IconButton} from 'react-native-paper';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { FloatingAction } from "react-native-floating-action";
-import Swipeable from 'react-native-swipeable';
+import * as React from "react";
+import {
+  View,
+  Text,
+  ImageBackground,
+  StyleSheet,
+  VirtualizedList,
+} from "react-native";
+import {
+  Dialog,
+  Portal,
+  Button,
+  IconButton,
+  useTheme,
+} from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Swipeable from "../components/swipable";
 import { useDispatch, useSelector } from "react-redux";
-import { addHistory, initHistory, updateHistory } from '../redux/actions';
+import { addHistory, initHistory, updateHistory } from "../redux/actions";
 import { createUUID } from "../utils/index";
-import {Icon} from "react-native-elements";
+import FAB from "../components/fab";
 
-const getItem = (data, index) => {
-  return data[index];
-};
-
-const getItemCount = (data) => {
-  return data.length;
-};
-
-const actions = [
-  {
-    text: "Create event",
-    icon: require("../assets/category_icon.png"),
-    name: "CreateEvent",
-    color: "#488B80",
-    position: 1
-  },
-  {
-    text: "Create category",
-    icon: require("../assets/category_icon.png"),
-    name: "CreateCategory",
-    color: "#488B80",
-    position: 2
-  }
-];
-
-const Completed_item = ({ title, amount }) => (
-  <View>
-    <Text style={styles.completed_text}> {title} for ${amount}</Text>
-  </View>
-);
-
+const today = new Date().getDay();
+const todayDate =
+  new Date().getDate().toString() +
+  (new Date().getMonth() + 1).toString() +
+  new Date().getFullYear().toString();
 
 export default function HomeScreen({ navigation }) {
-
+  const theme = useTheme();
   const dispatch = useDispatch();
 
   //list for completed & uncomleted
@@ -58,176 +42,182 @@ export default function HomeScreen({ navigation }) {
 
   // control of dialog
   const [visible, setVisible] = React.useState(false);
-  const showDialog = () => setVisible(true);
   const hideDialog = () => setVisible(false);
 
   // tyep of spent( under/ overspent)
   const [variation, setVariation] = React.useState([]);
 
-  // get day and date
-  const [today, setToday] = React.useState(new Date().getDay());
-  const [today_date, setToday_date] = React.useState(new Date().getDate().toString() + (new Date().getMonth() + 1).toString() + new Date().getFullYear().toString())
-
   // retrieve and filter (events & events)
   const events = useSelector((state) => state.events);
   const today_events = events.filter((item) => item.day == today);
   const histories = useSelector((state) => state.histories);
-  const today_history = histories.filter((item) => item.date == today_date);
+  const today_history = histories.filter((item) => item.date == todayDate);
 
   React.useEffect(() => {
-    if (today_history.length < 1) {
+    if (!today_history.length) {
       // initial history
-      const history = today_events.map(v => (
-        {
-          ...v,
-          date: today_date,
-          isCompleted: false,
-          history_uid: createUUID()
-        }));
-      if (history.length >= 1) { dispatch(initHistory({ history })); }
-      setUncompletedList(history)
+      const history = today_events.map((v) => ({
+        ...v,
+        date: todayDate,
+        isCompleted: false,
+        history_uid: createUUID(),
+      }));
+      if (history.length >= 1) {
+        dispatch(initHistory({ history }));
+      }
+      setUncompletedList(history);
     } else {
       // after added events
-      const history_1 = events.map(v => (
-        {
-          ...v,
-          date: today_date,
-          isCompleted: false,
-          history_uid: createUUID()
-        }));
-      const history = history_1[events.length - 1]
+      const history_1 = events.map((v) => ({
+        ...v,
+        date: todayDate,
+        isCompleted: false,
+        history_uid: createUUID(),
+      }));
+      const history = history_1[events.length - 1];
       dispatch(addHistory({ history }));
-      const today_history_notCompleted = histories.filter((item) => item.isCompleted == false)
-      today_history_notCompleted.splice(today_history_notCompleted.length - 1, 0, history)
-      setUncompletedList(today_history_notCompleted)
+      const today_history_notCompleted = histories.filter(
+        (item) => item.isCompleted == false
+      );
+      today_history_notCompleted.splice(
+        today_history_notCompleted.length - 1,
+        0,
+        history
+      );
+      setUncompletedList(today_history_notCompleted);
     }
   }, [events]);
 
   React.useEffect(() => {
     //edited completedlist
-    const today_history_Completed = histories.filter((item) => item.isCompleted == true)
-    setCompletedList(today_history_Completed)
-
+    const today_history_Completed = histories.filter(
+      (item) => item.isCompleted == true
+    );
+    setCompletedList(today_history_Completed);
   }, [uncompletedList]);
 
-  const renderItem = ({ item, index }) => (
-    <Swipeable style={{ margin: 8 }}
-      rightButtons={[
-        <View style={[styles.rightSwipeItem, { backgroundColor: '#72C4A6' }]}>
-          <TouchableOpacity onPress={() => {
-            setVisible(true)
-            setIndexforDialog(index)
-            setItemforDialog(item.amount)
-            setVariation([1, 2, 3])
-          }}>
-            <Text style={styles.text}>Just nice</Text>
-          </TouchableOpacity>
-          <MyDialog
-            visible={visible}
-            hideDialog={hideDialog}
-            uncompletedList={uncompletedList}
-            item={item_forDialog}
-            index={index_forDialog}
-            setUncompletedList={setUncompletedList}
-            dispatch={dispatch}
-            variation={variation}
-          ></MyDialog>
-        </View>,
+  const handleActionRelease = (isLeft, item, index) => {
+    setVisible(true);
+    setIndexforDialog(index);
+    setItemforDialog(item.amount);
 
-        <View style={[styles.rightSwipeItem, { backgroundColor: '#EF7971' }]}>
-          <TouchableOpacity onPress={() => {
-            setVisible(true)
-            setIndexforDialog(index)
-            setItemforDialog(item.amount)
-            setVariation([4, 5, 6])
-          }}>
-            <Text style={styles.text}>Overspent</Text>
-          </TouchableOpacity>
-        </View>
-
-      ]}
-    >
-      <View style={[styles.listItem, { backgroundColor: '#F0CFA3' }]}>
-        <Text style={[styles.arrow, { color: '#72C4A6' }]}> </Text>
-        <Text style={styles.text}>{item.name} for ${item.amount}</Text>
-        <Text style={[styles.arrow, { color: '#EF7971' }]}>→</Text>
-      </View>
-    </Swipeable>
-  );
-
-  const renderItem_completed = ({ item }) => (
-    <Completed_item
-      title={item.name}
-      amount={item.amount} />
-  );
+    if (isLeft) setVariation([1, 2, 3]);
+    else setVariation([4, 5, 6]);
+  };
 
   return (
-    <View style={styles.container}>
-      <ImageBackground source={require("../assets/home_background.png")} style={styles.image}>
-
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.primary3 }]}
+    >
+      <ImageBackground
+        source={require("../assets/home_background.png")}
+        style={styles.image}
+      >
         {/*<Icon name='fire' type='font-awesome' color={"red"}*/}
         {/*      onPress={() => navigation.navigate('Profile')}/>*/}
 
-        <IconButton
-          icon={"menu"}
-          style={{ position: 'absolute', top: 35, right: 15, zIndex: 10 }}
-          color={"#488B80"}
-          onPress={() => {
-            navigation.navigate('Profile');
-          }}
-        ></IconButton>
-
-        <View>
-          <Text style={styles.date_text}>Today</Text>
-
+        <View style={styles.titleContainer}>
+          <Text
+            style={{
+              fontSize: 36,
+              flex: 1,
+              color: theme.colors.primary,
+            }}
+          >
+            Today
+          </Text>
+          <IconButton
+            size={30}
+            icon={"menu-open"}
+            color={theme.colors.accent2}
+            onPress={() => {
+              navigation.push("Profile");
+            }}
+          ></IconButton>
         </View>
 
-        <View style={{ height: '40%' }}>
+        <View style={[styles.listContainer, { flex: 2 }]}>
           <VirtualizedList
-            style={{ flex: 1 }}
-            keyExtractor={(item, index) => {
-              return item[index];
-            }}
             // here
             data={uncompletedList}
-            getItem={getItem}
-            getItemCount={getItemCount}
-            renderItem={renderItem}
+            keyExtractor={(item) => item["history_uid"]}
+            getItem={(data, index) => data[index]}
+            getItemCount={(data) => data.length}
+            renderItem={(item, index) => {
+              item = item.item;
+              return (
+                <Swipeable
+                  onRightActionRelease={() =>
+                    handleActionRelease(false, item, index)
+                  }
+                  onLeftActionRelease={() =>
+                    handleActionRelease(true, item, index)
+                  }
+                >
+                  {`${item.name} for ${item.amount}`}
+                </Swipeable>
+              );
+            }}
+            ItemSeparatorComponent={() => (
+              <View style={{ width: "100%", height: 8 }}></View>
+            )}
           />
         </View>
-
-        <View>
-          <Text style={{ padding: 10, fontSize: 25, color: '#717171' }}>Completed</Text>
-        </View>
-
-        <View>
-          <FlatList
+        <Text
+          style={{ fontSize: 18, color: theme.colors.text, marginVertical: 12 }}
+        >
+          Completed
+        </Text>
+        <View style={[styles.listContainer, { flex: 1 }]}>
+          <VirtualizedList
             data={completedList}
-            renderItem={renderItem_completed}
-            keyExtractor={item => item.title}
+            getItem={(data, index) => data[index]}
+            getItemCount={(data) => data.length}
+            // TODO replace item.item to item
+            renderItem={(item, index) => {
+              console.log(item[index]);
+              return;
+              <Text>{`${item.item.title} for ${item.item.amount}`}</Text>;
+            }}
+            keyExtractor={(item) => item.title}
+            ItemSeparatorComponent={() => (
+              <View style={{ width: "100%", height: 8 }}></View>
+            )}
           />
         </View>
-
-        <FloatingAction
-          horizontal={true}
-          initialNumToRender={3}
-          actions={actions}
-          color="#488B80"
-          onPressItem={name => {
-            navigation.navigate(name);
-          }}
-        />
       </ImageBackground>
-    </View>
+      <FAB navigation={navigation}></FAB>
+      <MyDialog
+        visible={visible}
+        hideDialog={hideDialog}
+        uncompletedList={uncompletedList}
+        item={item_forDialog}
+        index={index_forDialog}
+        setUncompletedList={setUncompletedList}
+        dispatch={dispatch}
+        variation={variation}
+      ></MyDialog>
+    </SafeAreaView>
   );
 }
 
-const MyDialog = ({ visible, hideDialog, index, setUncompletedList, uncompletedList, item, dispatch, variation }) => {
+const MyDialog = ({
+  visible,
+  hideDialog,
+  index,
+  setUncompletedList,
+  uncompletedList,
+  item,
+  dispatch,
+  variation,
+}) => {
   return (
     <Portal>
       <Dialog visible={visible} onDismiss={hideDialog}>
-        <Dialog.Title >How much you vary?</Dialog.Title>
-        <Dialog.Actions style={{ justifyContent: 'space-between', flexDirection: 'column' }}>
+        <Dialog.Title>How much you vary?</Dialog.Title>
+        <Dialog.Actions
+          style={{ justifyContent: "space-between", flexDirection: "column" }}
+        >
           <Button
             onPress={() => {
               //update local
@@ -236,122 +226,123 @@ const MyDialog = ({ visible, hideDialog, index, setUncompletedList, uncompletedL
               setUncompletedList(copy);
 
               //update uncompletedList
-              let history = [uncompletedList[index]]
-              console.log(history)
-              dispatch(updateHistory({ history }))
-              history = history.map(v => (
-                {
-                  ...v,
-                  isCompleted: true,
-                  variation: variation[0]
-                }));
-              history = history[0]
-              dispatch(addHistory({ history }))
+              let history = [uncompletedList[index]];
+              console.log(history);
+              dispatch(updateHistory({ history }));
+              history = history.map((v) => ({
+                ...v,
+                isCompleted: true,
+                variation: variation[0],
+              }));
+              history = history[0];
+              dispatch(addHistory({ history }));
               hideDialog();
-            }}>{(item * 0.01).toFixed(2)} - {(item * 0.1).toFixed(2)}</Button>
+            }}
+          >
+            {(item * 0.01).toFixed(2)} - {(item * 0.1).toFixed(2)}
+          </Button>
 
-          <Button onPress={() => {
-            //update local
-            let copy = Array.from(uncompletedList);
-            copy.splice(index, 1);
-            setUncompletedList(copy);
+          <Button
+            onPress={() => {
+              //update local
+              let copy = Array.from(uncompletedList);
+              copy.splice(index, 1);
+              setUncompletedList(copy);
 
-            //update uncompletedList
-            let history = [uncompletedList[index]]
-            console.log(history)
-            dispatch(updateHistory({ history }))
-            history = history.map(v => (
-              {
+              //update uncompletedList
+              let history = [uncompletedList[index]];
+              console.log(history);
+              dispatch(updateHistory({ history }));
+              history = history.map((v) => ({
                 ...v,
                 isCompleted: true,
-                variation: variation[1]
+                variation: variation[1],
               }));
-            history = history[0]
-            dispatch(addHistory({ history }))
-            hideDialog();
-          }}>{(item * 0.11).toFixed(2)} - {(item * 0.2).toFixed(2)}</Button>
+              history = history[0];
+              dispatch(addHistory({ history }));
+              hideDialog();
+            }}
+          >
+            {(item * 0.11).toFixed(2)} - {(item * 0.2).toFixed(2)}
+          </Button>
 
-          <Button onPress={() => {
-            //update local
-            let copy = Array.from(uncompletedList);
-            copy.splice(index, 1);
-            setUncompletedList(copy);
+          <Button
+            onPress={() => {
+              //update local
+              let copy = Array.from(uncompletedList);
+              copy.splice(index, 1);
+              setUncompletedList(copy);
 
-            //update uncompletedList
-            let history = [uncompletedList[index]]
-            console.log(history)
-            dispatch(updateHistory({ history }))
-            history = history.map(v => (
-              {
+              //update uncompletedList
+              let history = [uncompletedList[index]];
+              console.log(history);
+              dispatch(updateHistory({ history }));
+              history = history.map((v) => ({
                 ...v,
                 isCompleted: true,
-                variation: variation[2]
+                variation: variation[2],
               }));
-            history = history[0]
-            dispatch(addHistory({ history }))
-            hideDialog();
-          }}> {'>'} {(item * 0.21).toFixed(2)}</Button>
+              history = history[0];
+              dispatch(addHistory({ history }));
+              hideDialog();
+            }}
+          >
+            {" "}
+            {">"} {(item * 0.21).toFixed(2)}
+          </Button>
         </Dialog.Actions>
       </Dialog>
     </Portal>
-  )
+  );
 };
 
-
 const styles = StyleSheet.create({
+  titleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 24,
+  },
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+  },
+
+  listContainer: {
+    flex: 1,
+    marginVertical: 12,
   },
   image: {
     flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    width: '100%',
-    height: '100%',
+    flexDirection: "column",
+    paddingHorizontal: 12,
   },
   date_text: {
     fontSize: 50,
     marginTop: 120,
     marginBottom: 50,
     margin: 20,
-    color: '#EF7971'
+    color: "#EF7971",
   },
   completed_text: {
     fontSize: 20,
     marginHorizontal: 10,
     padding: 10,
-    color: '#EF7971',
-    textDecorationLine: 'line-through'
+    color: "#EF7971",
+    textDecorationLine: "line-through",
   },
   dialog_button: {
     fontSize: 20,
-    margin: 10
+    margin: 10,
   },
   listItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     height: 75,
-    alignItems: 'center',
-    justifyContent: 'space-between'
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-  leftSwipeItem: {
-    flex: 1,
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    paddingRight: 20
-  },
-  rightSwipeItem: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingLeft: 20
-  },
+
   text: {
-    color: '#fff',
-    fontSize: 18
+    color: "#fff",
+    fontSize: 18,
   },
-  arrow: {
-    padding: 20,
-    fontSize: 20
-  }
 });

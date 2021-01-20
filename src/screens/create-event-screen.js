@@ -63,7 +63,7 @@ export default function CreateEventScreen({ route, navigation }) {
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: colors.primary, padding: 24 }}
+      style={{ flex: 1, backgroundColor: colors.primary, paddingHorizontal: 12 }}
     >
       <View
         style={{
