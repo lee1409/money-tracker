@@ -73,10 +73,6 @@ export const incHotSteak = createAction('INC_HOT_STEAK');
 
 export const resetHotSteak = createAction('RESET_HOT_STEAK');
 
-export const updateHistory = createAction("UPDATE_HISTORY", (history) => ({
-  payload: history,
-}));
-
 export const addKey = createAction("ADD_KEY", (key) => ({ payload: key }));
 
 export const deleteKey = createAction("DELETE_KEY", (key) => ({

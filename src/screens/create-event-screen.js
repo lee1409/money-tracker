@@ -58,7 +58,7 @@ export default function CreateEventScreen({ route, navigation }) {
   };
 
   const handleAmount = (amount) => {
-    setForm({ ...form, amount: Number(amount) });
+    setForm({ ...form, amount });
   };
 
   return (
@@ -85,7 +85,7 @@ export default function CreateEventScreen({ route, navigation }) {
         <Button
           labelStyle={{ color: colors.accent2 }}
           onPress={() => {
-            dispatch(addEvent({ form }));
+            dispatch(addEvent({ ...form, amount: Number(form.amount) }));
             navigation.goBack();
           }}
           mode="contained"

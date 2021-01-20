@@ -4,14 +4,14 @@ import todos from "./todos";
 import visibilityFilter from "./visibilityFilter";
 
 import {
-  addEvent,
-  updateEvent,
-  deleteEvent,
   updatelastAccess,
   updateToday,
   incHotSteak,
-  resetHotSteak
+  resetHotSteak,
 } from "../actions/index";
+
+import { overwriteToday } from "../actions/index";
+import { addEvent } from "../actions/index";
 import { addCategory, deleteCategory } from "../actions/index";
 import {
   addHistory,
@@ -19,16 +19,11 @@ import {
   updateHistory,
   addBulkHistory,
 } from "../actions/index";
-
-import { overwriteToday } from "../actions/index";
-import { addEvent, updateEvent, deleteEvent } from "../actions/index";
-import { addCategory, deleteCategory } from "../actions/index";
-import { addHistory, initHistory, updateHistory } from "../actions/index";
 import { addKey, deleteKey } from "../actions/index";
 
 const events = createReducer([], (builder) => {
   builder.addCase(addEvent, (state, action) => {
-    state.push(action.payload.form);
+    state.push(action.payload);
   });
 });
 
@@ -55,20 +50,20 @@ const today = createReducer([], (builder) => {
 });
 
 const hotSteak = createReducer(1, (builder) => {
-  builder.addCase(incHotSteak, (state) => {
-    state++;
-  }).addCase(resetHotSteak, (state) => {
-    state = 1;
-  });
+  builder
+    .addCase(incHotSteak, (state) => {
+      state++;
+    })
+    .addCase(resetHotSteak, (state) => {
+      state = 1;
+    });
 });
-
 
 const lastAccess = createReducer(new Date().toDateString(), (builder) => {
   builder.addCase(updatelastAccess(), (state) => {
     state = new Date().toDateString();
   });
 });
-
 
 const histories = createReducer([], (builder) => {
   builder
