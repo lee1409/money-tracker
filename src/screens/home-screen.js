@@ -6,55 +6,42 @@ import {
   StyleSheet,
   VirtualizedList,
 } from "react-native";
-import {
-  Dialog,
-  Portal,
-  Button,
-  IconButton,
-  useTheme,
-} from "react-native-paper";
+import { IconButton, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Swipeable from "../components/swipable";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addBulkHistory,
-  addHistory,
-  updateHistory,
   updatelastAccess,
-  updateToday,
+  overwriteToday,
 } from "../redux/actions";
 import FAB from "../components/fab";
+import MyDialog from "../components/dialog";
 import { createSelector } from "@reduxjs/toolkit";
 const _ = require("lodash");
 
 const getDay = new Date().getDay();
 
 const eventToday = createSelector(
-  state => state.events, 
-  events => events.filter(event => event.day === getDay)
+  (state) => state.events,
+  (events) => events.filter((event) => event.day === getDay)
 );
 
 export default function HomeScreen({ navigation }) {
   const theme = useTheme();
   const dispatch = useDispatch();
-  //item inside dialog
-  const [index_forDialog, setIndexforDialog] = React.useState(null);
-  const [item_forDialog, setItemforDialog] = React.useState(null);
-
-  // control of dialog
-  const [visible, setVisible] = React.useState(false);
-  const hideDialog = () => setVisible(false);
-
-  // tyep of spent( under/ overspent)
-  const [variation, setVariation] = React.useState([]);
-
   const events = useSelector(eventToday);
   let today = useSelector((state) => state.today);
   const lastAccess = useSelector((state) => state.lastAccess);
 
+  // Dialog item
+  const [item, setItem] = React.useState({});
+  const [visible, setVisible] = React.useState(false);
+
   React.useEffect(() => {
     // If last access is yesterday
-    let diff = (new Date(new Date().toDateString()) - new Date(lastAccess)) % 86400000;
+    let diff =
+      (new Date(new Date().toDateString()) - new Date(lastAccess)) % 86400000;
     if (diff >= 1) {
       // Add today into history
       if (today.length) dispatch(addBulkHistory(today));
@@ -64,29 +51,30 @@ export default function HomeScreen({ navigation }) {
       // Reset last access
       dispatch(updatelastAccess());
     }
+
+    // Check diff between events and today
     let final = [];
+    let eventsByKey = _.keyBy(events, "uid");
     today = _.keyBy(today, "uid");
-    for (let key in events) {
+    for (let key in eventsByKey) {
       let obj = Object.assign(
         {
           isCompleted: false,
           date: new Date().toDateString(),
         },
         today[key],
-        events[key]
+        eventsByKey[key]
       );
-      final.push(obj);;
+      final.push(obj);
     }
-    dispatch(updateToday(final));
+    dispatch(overwriteToday(final));
   }, [events]);
 
-  const handleActionRelease = (isLeft, item, index) => {
-    setVisible(true);
-    setIndexforDialog(index);
-    setItemforDialog(item.amount);
+  const hideDialog = () => setVisible(false);
 
-    if (isLeft) setVariation([1, 2, 3]);
-    else setVariation([4, 5, 6]);
+  const handleActionRelease = (isLeft, item) => {
+    setItem({ ...item, isOverspent: isLeft });
+    setVisible(true);
   };
 
   return (
@@ -123,8 +111,7 @@ export default function HomeScreen({ navigation }) {
             keyExtractor={(item) => item["uid"]}
             getItem={(data, index) => data[index]}
             getItemCount={(data) => data.length}
-            renderItem={(item, index) => {
-              item = item.item;
+            renderItem={({ item, index }) => {
               return (
                 <Swipeable
                   onRightActionRelease={() =>
@@ -153,10 +140,19 @@ export default function HomeScreen({ navigation }) {
             data={today.filter((el) => el.isCompleted === true)}
             getItem={(data, index) => data[index]}
             getItemCount={(data) => data.length}
-            // TODO replace item.item to item
-            renderItem={(item, index) => {
-              console.log(item[index]);
-              return <Text>{`for ${item.amount}`}</Text>;
+            renderItem={({ item }) => {
+              return (
+                <Text
+                  style={[
+                    styles.completedText,
+                    {
+                      color: item.isOverspent
+                        ? theme.colors.primary
+                        : theme.colors.secondary,
+                    },
+                  ]}
+                >{`${item.name} for ${item.amount}`}</Text>
+              );
             }}
             keyExtractor={(item) => item.uid}
             ItemSeparatorComponent={() => (
@@ -166,20 +162,10 @@ export default function HomeScreen({ navigation }) {
         </View>
       </ImageBackground>
       <FAB navigation={navigation}></FAB>
-      {/* <MyDialog
-        visible={visible}
-        hideDialog={hideDialog}
-        uncompletedList={uncompletedList}
-        item={item_forDialog}
-        index={index_forDialog}
-        setUncompletedList={setUncompletedList}
-        dispatch={dispatch}
-        variation={variation}
-      ></MyDialog> */}
+      <MyDialog visible={visible} hideDialog={hideDialog} {...item}></MyDialog>
     </SafeAreaView>
   );
 }
-
 
 const styles = StyleSheet.create({
   titleContainer: {
@@ -208,7 +194,7 @@ const styles = StyleSheet.create({
     margin: 20,
     color: "#EF7971",
   },
-  completed_text: {
+  completedText: {
     fontSize: 20,
     marginHorizontal: 10,
     padding: 10,
