@@ -58,7 +58,7 @@ export default function CreateEventScreen({ route, navigation }) {
   };
 
   const handleAmount = (amount) => {
-    setForm({ ...form, amount });
+    setForm({ ...form, amount: Number(amount) });
   };
 
   return (
@@ -117,6 +117,7 @@ export default function CreateEventScreen({ route, navigation }) {
         spend
       </Text>
       <TextInput
+        keyboardType={'numeric'}
         style={{ marginBottom: 12, marginHorizontal: 24 }}
         label="Amount"
         onChangeText={handleAmount}
