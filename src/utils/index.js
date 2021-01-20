@@ -7,3 +7,24 @@ export function createUUID(){
   });
   return uuid;
 }
+
+/**
+ * Given amount and overspent, give a list
+ * @param {Number} amount 
+ * @param {Boolean} isOverspent
+ */
+export function getRange(amount, isOverspent) {
+
+  if (isOverspent) {
+    return [
+      [`$${(amount * 0.01).toFixed(2)} - $${(amount * 0.1).toFixed(2)}`, amount * 0.01 ],
+      [`$${(amount * 0.11).toFixed(2)} - $${(amount * 0.2).toFixed(2)}`, amount * 0.11],
+      [`> $${(amount * 0.21).toFixed(2)}`, amount * 0.11],
+    ];
+  }
+  return [
+    [`$${(amount * 0.01).toFixed(2)} - $${(amount * 0.1).toFixed(2)}`, amount * 0.01 ],
+    [`$${(amount * 0.11).toFixed(2)} - $${(amount * 0.2).toFixed(2)}`, amount * 0.11],
+    [`> $${(amount * 0.21).toFixed(2)}`, amount * 0.11],
+  ];
+};
