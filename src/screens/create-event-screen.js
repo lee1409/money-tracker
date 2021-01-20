@@ -58,12 +58,12 @@ export default function CreateEventScreen({ route, navigation }) {
   };
 
   const handleAmount = (amount) => {
-    setForm({ ...form, amount });
+    setForm({ ...form, amount: Number(amount) });
   };
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: colors.primary, padding: 24 }}
+      style={{ flex: 1, backgroundColor: colors.primary, paddingHorizontal: 12 }}
     >
       <View
         style={{
@@ -117,6 +117,7 @@ export default function CreateEventScreen({ route, navigation }) {
         spend
       </Text>
       <TextInput
+        keyboardType={'numeric'}
         style={{ marginBottom: 12, marginHorizontal: 24 }}
         label="Amount"
         onChangeText={handleAmount}
