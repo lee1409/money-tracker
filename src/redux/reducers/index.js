@@ -3,7 +3,14 @@ import { combineReducers } from "redux";
 import todos from "./todos";
 import visibilityFilter from "./visibilityFilter";
 
-import { addEvent, updateEvent, deleteEvent, updatelastAccess } from "../actions/index";
+import {
+  addEvent,
+  updateEvent,
+  deleteEvent,
+  updatelastAccess,
+  updateToday,
+  incHotSteak,
+} from "../actions/index";
 import { addCategory, deleteCategory } from "../actions/index";
 import {
   addHistory,
@@ -12,8 +19,7 @@ import {
   addBulkHistory,
 } from "../actions/index";
 
-import {updateToday} from '../actions/index'
-
+import { overwriteToday } from "../actions/index";
 
 const events = createReducer([], (builder) => {
   builder.addCase(addEvent, (state, action) => {
@@ -32,18 +38,22 @@ const categories = createReducer([], (builder) => {
     });
 });
 
-
 const today = createReducer([], (builder) => {
-  builder.addCase(updateToday, (_, action) => {
-    return action.payload;
-  });
-})
+  builder
+    .addCase(overwriteToday, (_, action) => {
+      return action.payload;
+    })
+    .addCase(updateToday, (state, action) => {
+      let index = state.findIndex((ele) => ele.uid === action.payload.uid);
+      state.splice(index, 1, action.payload);
+    });
+});
 
 const lastAccess = createReducer(new Date().toDateString(), (builder) => {
   builder.addCase(updatelastAccess(), (state) => {
     state = new Date().toDateString();
-  })
-})
+  });
+});
 
 const histories = createReducer([], (builder) => {
   builder
