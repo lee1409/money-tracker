@@ -7,6 +7,7 @@ import HomeScreen from "./home-screen";
 import CreateEventScreen from './create-event-screen';
 import CreateCategoryScreen from "./create-category-screen";
 import ProfileScreen from "./profile-screen";
+import LoginScreen from "./login-screen";
 
 
 const Stack = createStackNavigator();
@@ -15,6 +16,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator headerMode="none">
+        <Stack.Screen name="Login" component={LoginScreen}></Stack.Screen>
         <Stack.Screen name="Home" component={HomeScreen}></Stack.Screen>
         <Stack.Screen name="CreateEvent" component={CreateEventScreen}></Stack.Screen>
         <Stack.Screen name="CreateCategory" component={CreateCategoryScreen}></Stack.Screen>

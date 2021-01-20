@@ -21,6 +21,10 @@ import {
 } from "../actions/index";
 
 import { overwriteToday } from "../actions/index";
+import { addEvent, updateEvent, deleteEvent } from "../actions/index";
+import { addCategory, deleteCategory } from "../actions/index";
+import { addHistory, initHistory, updateHistory } from "../actions/index";
+import { addKey, deleteKey } from "../actions/index";
 
 const events = createReducer([], (builder) => {
   builder.addCase(addEvent, (state, action) => {
@@ -65,6 +69,7 @@ const lastAccess = createReducer(new Date().toDateString(), (builder) => {
   });
 });
 
+
 const histories = createReducer([], (builder) => {
   builder
     .addCase(initHistory, (state, action) => {
@@ -83,6 +88,17 @@ const histories = createReducer([], (builder) => {
     });
 });
 
+const keys = createReducer([], (builder) => {
+  builder
+    .addCase(addKey, (state, action) => {
+      state.push(action.payload.key);
+    })
+    .addCase(deleteKey, (state, action) => {
+      let index = state.indexOf(action.payload);
+      state.splice(index, 1);
+    });
+});
+
 export default combineReducers({
   todos,
   visibilityFilter,
@@ -92,4 +108,5 @@ export default combineReducers({
   lastAccess,
   today,
   hotSteak,
+  keys,
 });

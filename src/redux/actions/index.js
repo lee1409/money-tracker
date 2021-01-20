@@ -46,10 +46,10 @@ export const deleteCategory = createAction("DELETE_CATEGORY", (category) => ({
 export const initHistory = createAction("INITIAL_HISTORY", (history) => ({
   payload: history,
 }));
-
 export const addBulkHistory = createAction("BULK_ADD_HISTORY", (histories) => ({
   payload: histories,
 }));
+
 
 export const addHistory = createAction("ADD_HISTORY", (history) => ({
   payload: history,
@@ -72,3 +72,13 @@ export const updatelastAccess = createAction("UPDATE_LAST_ACCESS");
 export const incHotSteak = createAction('INC_HOT_STEAK');
 
 export const resetHotSteak = createAction('RESET_HOT_STEAK');
+
+export const updateHistory = createAction("UPDATE_HISTORY", (history) => ({
+  payload: history,
+}));
+
+export const addKey = createAction("ADD_KEY", (key) => ({ payload: key }));
+
+export const deleteKey = createAction("DELETE_KEY", (key) => ({
+  payload: key,
+}));
