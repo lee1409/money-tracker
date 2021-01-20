@@ -4,12 +4,9 @@ import * as React from "react";
 import {
   View,
   Text,
-  FlatList,
   ImageBackground,
   StyleSheet,
-  TouchableOpacity,
   VirtualizedList,
-  TouchableHighlight,
 } from "react-native";
 import {
   Dialog,
@@ -19,28 +16,11 @@ import {
   useTheme,
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Swipeable from "react-native-swipeable";
+import Swipeable from "../components/swipable";
 import { useDispatch, useSelector } from "react-redux";
 import { addHistory, initHistory, updateHistory } from "../redux/actions";
 import { createUUID } from "../utils/index";
 import FAB from "../components/fab";
-
-const getItem = (data, index) => {
-  return data[index];
-};
-
-const getItemCount = (data) => {
-  return data.length;
-};
-
-const Completed_item = ({ title, amount }) => (
-  <View>
-    <Text style={styles.completed_text}>
-      {" "}
-      {title} for ${amount}
-    </Text>
-  </View>
-);
 
 const today = new Date().getDay();
 const todayDate =
@@ -116,83 +96,14 @@ export default function HomeScreen({ navigation }) {
     setCompletedList(today_history_Completed);
   }, [uncompletedList]);
 
-  const renderItem = ({ item, index }) => (
-    <Swipeable
-      style={{ margin: 8 }}
-      onLeftActionRelease={() => {
-        setVisible(true);
-        setIndexforDialog(index);
-        setItemforDialog(item.amount);
-        setVariation([1, 2, 3]);
-      }}
-      onRightActionRelease={() => {
-        setVisible(true);
-        setIndexforDialog(index);
-        setItemforDialog(item.amount);
-        setVariation([4, 5, 6]);
-      }}
-      leftContent={
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "flex-end",
-            backgroundColor: theme.colors.secondary,
-            paddingRight: 12,
-          }}
-        >
-          <Text
-            style={{
-              color: "#fff",
-              fontSize: 18,
-            }}
-          >
-            Just Nice
-          </Text>
-        </View>
-      }
-      rightContent={
-        <View
-          style={{
-            flex: 1,
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "flex-start",
-            backgroundColor: theme.colors.primary,
-            paddingLeft: 12,
-          }}
-        >
-          <Text
-            style={{
-              color: "#fff",
-              fontSize: 18,
-            }}
-          >
-            Overspent
-          </Text>
-        </View>
-      }
-    >
-      <View
-        style={{
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          height: 72,
-          backgroundColor: theme.colors.primary2,
-        }}
-      >
-        <Text style={styles.text}>
-          {item.name} for ${item.amount}
-        </Text>
-      </View>
-    </Swipeable>
-  );
+  const handleActionRelease = (isLeft, item, index) => {
+    setVisible(true);
+    setIndexforDialog(index);
+    setItemforDialog(item.amount);
 
-  const renderItem_completed = ({ item }) => (
-    <Completed_item title={item.name} amount={item.amount} />
-  );
+    if (isLeft) setVariation([1, 2, 3]);
+    else setVariation([4, 5, 6]);
+  };
 
   return (
     <SafeAreaView
@@ -216,7 +127,7 @@ export default function HomeScreen({ navigation }) {
             Today
           </Text>
           <IconButton
-            size={36}
+            size={30}
             icon={"menu-open"}
             color={theme.colors.accent2}
             onPress={() => {
@@ -225,27 +136,53 @@ export default function HomeScreen({ navigation }) {
           ></IconButton>
         </View>
 
-        <View style={[styles.listContainer, {flex: 2}]}>
+        <View style={[styles.listContainer, { flex: 2 }]}>
           <VirtualizedList
             // here
             data={uncompletedList}
-            getItem={getItem}
-            getItemCount={getItemCount}
-            renderItem={renderItem}
+            keyExtractor={(item) => item["history_uid"]}
+            getItem={(data, index) => data[index]}
+            getItemCount={(data) => data.length}
+            renderItem={(item, index) => {
+              item = item.item;
+              return (
+                <Swipeable
+                  onRightActionRelease={() =>
+                    handleActionRelease(false, item, index)
+                  }
+                  onLeftActionRelease={() =>
+                    handleActionRelease(true, item, index)
+                  }
+                >
+                  {`${item.name} for ${item.amount}`}
+                </Swipeable>
+              );
+            }}
+            ItemSeparatorComponent={() => (
+              <View style={{ width: "100%", height: 8 }}></View>
+            )}
           />
         </View>
-
         <Text
           style={{ fontSize: 18, color: theme.colors.text, marginVertical: 12 }}
         >
           Completed
         </Text>
-
-        <View style={[styles.listContainer, {flex: 1}]}>
-          <FlatList
+        <View style={[styles.listContainer, { flex: 1 }]}>
+          <VirtualizedList
             data={completedList}
-            renderItem={renderItem_completed}
+            getItem={(data, index) => data[index]}
+            getItemCount={(data) => data.length}
+            // TODO replace item.item to item
+            renderItem={(item, index) => {
+              console.log(item[index]);
+              return;
+              <Text>{`${item.item.title} for ${item.item.amount}`}</Text>;
+            }}
             keyExtractor={(item) => item.title}
+            ItemSeparatorComponent={() => (
+              <View style={{ width: "100%", height: 8 }}></View>
+            )}
           />
         </View>
       </ImageBackground>
@@ -403,23 +340,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  leftSwipeItem: {
-    flex: 1,
-    alignItems: "flex-end",
-    justifyContent: "center",
-    paddingRight: 20,
-  },
-  rightSwipeItem: {
-    flex: 1,
-    justifyContent: "center",
-    paddingLeft: 20,
-  },
+
   text: {
     color: "#fff",
     fontSize: 18,
-  },
-  arrow: {
-    padding: 20,
-    fontSize: 20,
   },
 });
