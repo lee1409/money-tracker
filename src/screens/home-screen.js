@@ -14,6 +14,8 @@ import {
   addBulkHistory,
   updatelastAccess,
   overwriteToday,
+  incHotSteak,
+  resetHotSteak,
 } from "../redux/actions";
 import FAB from "../components/fab";
 import MyDialog from "../components/dialog";
@@ -46,8 +48,7 @@ export default function HomeScreen({ navigation }) {
       // Add today into history
       if (today.length) dispatch(addBulkHistory(today));
 
-      // TODO add hot steak
-
+      diff > 1 ? dispatch(resetHotSteak()) : dispatch(incHotSteak());
       // Reset last access
       dispatch(updatelastAccess());
     }

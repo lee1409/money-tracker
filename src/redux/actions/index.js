@@ -68,3 +68,7 @@ export const updateToday = createAction("UPDATE_TODAY", (today) => ({
 }));
 
 export const updatelastAccess = createAction("UPDATE_LAST_ACCESS");
+
+export const incHotSteak = createAction('INC_HOT_STEAK');
+
+export const resetHotSteak = createAction('RESET_HOT_STEAK');
