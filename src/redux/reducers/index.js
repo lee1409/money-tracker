@@ -10,7 +10,7 @@ import {
   resetHotSteak,
   toggleToday,
   updateEvent,
-  deleteEvent,
+  deleteEvent, resetGoal, updateGoal,
 } from "../actions/index";
 
 import { overwriteToday } from "../actions/index";
@@ -71,6 +71,19 @@ const categories = createReducer(
       .addCase(deleteCategory, (state, action) => {
         let index = state.indexOf(action.payload);
         state.splice(index, 1);
+      });
+  }
+);
+
+const profileGoal = createReducer(
+  {name: "A Gift", amount: 20, date: new Date().toDateString()},
+  (builder) => {
+    builder
+      .addCase(resetGoal, (state, action) => {
+        state = action.payload;
+      })
+      .addCase(updateGoal, (state, action) => {
+        return action.payload;
       });
   }
 );
@@ -150,4 +163,5 @@ export default combineReducers({
   today,
   hotSteak,
   keys,
+  profileGoal
 });

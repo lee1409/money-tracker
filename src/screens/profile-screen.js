@@ -30,6 +30,7 @@ import {
 import { BarChart } from "react-native-chart-kit";
 import { useDispatch, useSelector } from "react-redux";
 import { createUUID } from "../utils/index";
+import {resetGoal, updateGoal} from "../redux/actions";
 
 const userInfo = {
   name: "Lee",
@@ -65,25 +66,53 @@ export default function ProfileScreen({ route, navigation }) {
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
 
-  const [goal, setGoal] = useState(null);
   const dispatch = useDispatch();
   const today = useSelector((state) => state.today);
   const histories = useSelector((state) => state.histories);
   const hotSteak = useSelector((state) => state.hotSteak);
+  const profileGoal_ = useSelector((state) => state.profileGoal);
   let score = Math.ceil(50 + ((hotSteak / 3) % 15));
   const [historyDate, setHistoryDate] = useState([]);
   const [historyTotalSpent, setHistoryTotalSpent] = useState([]);
+  const [goalProgress, setGoalProgress] = useState(0);
+  const [profileGoal, setProfileGoal] = useState(profileGoal_);
+
+  const handleGoalName = (name) => {
+    setProfileGoal({ ...profileGoal, name });
+  };
+
+  const handleGoalAmount = (amount) => {
+    setProfileGoal({ ...profileGoal, amount });
+  };
+
+  const goalReset = ()=> {
+    setProfileGoal({...profileGoal, date: new Date().toDateString()})
+    dispatch(resetGoal(profileGoal));
+    hideModal();
+  }
+  const goalUpdate = ()=> {
+    dispatch(updateGoal(profileGoal));
+    hideModal();
+  }
 
   useEffect(() => {
     chartConfig = config;
 
+    // Graph Data
     const sortedDec = histories.sort((a, b) => {
       const aDate = new Date(a.date)
       const bDate = new Date(b.date)
       return bDate.getTime() - aDate.getTime()
     })
     let dates = [
-      ...new Set(sortedDec.map((context) => context.date)),
+      ...new Set(sortedDec.map((context) => {
+        let tempDate = new Date(context.date)
+        let dd = tempDate.getDate();
+        let mm = tempDate.getMonth()+1;
+        if(dd<10) dd='0'+dd;
+        if(mm<10) mm='0'+mm;
+        return dd+'/'+mm
+      })),
     ].slice(0, 7);
     const left = 7 - historyDate.length;
     for (let i = 0; i < left; i++) {
@@ -96,12 +125,13 @@ export default function ProfileScreen({ route, navigation }) {
     for (let i = 0; i < historyDate.length; i++) {
       let current = 0;
       for (let j = 0; j < histories.length; j++) {
-        if (histories[j].date === historyDate[i] && histories[j].isCompleted) {
+        let context = histories[j]
+        if (context.date === historyDate[i] && context.isCompleted) {
           if (context.isOverspent) {
             current += context.amount * (1 + context.spentPercent);
             score -= context.range;
           } else {
-            current += context.amount * (1 - context.spentPercent);
+            current += context.amount * (1 - (-1*context.spentPercent));
             score += context.range;
           }
         }
@@ -109,7 +139,43 @@ export default function ProfileScreen({ route, navigation }) {
       total.push(current);
     }
     setHistoryTotalSpent(total);
-  }, []);
+
+    //Goal Progression
+    let saved = 0;
+    for (let i = 0; i < histories.length; i++) {
+      let context = histories[i]
+      if (context.date >= profileGoal.date && context.isCompleted) {
+        if (context.isOverspent) {
+          saved -= context.amount * context.spentPercent;
+        } else {
+          saved += context.amount * (-1*context.spentPercent);
+        }
+      }
+    }
+    for (let i = 0; i < today.length; i++) {
+      let context = today[i]
+      if (context.date >= profileGoal.date && context.isCompleted) {
+        console.log("date: ", profileGoal.date)
+        if (context.isOverspent) {
+          saved -= context.amount * context.spentPercent;
+        } else {
+          saved += context.amount * (-1*context.spentPercent);
+        }
+      }
+    }
+
+    if (saved >= profileGoal.amount){
+      setGoalProgress(100);
+    }else{
+      let progress = Math.round((1 - ((profileGoal.amount - saved) / profileGoal.amount)) * 100)
+      if(progress < 0){
+        setGoalProgress(0)
+      }else{
+        setGoalProgress(progress)
+      }
+    }
+
+  }, [, profileGoal]);
 
   let chartData = {
     labels: historyDate,
@@ -236,16 +302,18 @@ export default function ProfileScreen({ route, navigation }) {
                 alignItems: "center",
               }}
             >
-              <View style={{ flex: 1, marginRight: 10 }}>
+              <View style={{ flex: 1, marginRight: 10}}>
                 <Text
                   style={{
                     fontSize: 16,
                     fontWeight: "bold",
                     color: colors.secondary,
-                    textAlign: "left",
+                    textAlign: "center",
+                    marginLeft: -20
                   }}
                 >
-                  {userInfo.goal}
+                  {/*{userInfo.goal}*/}
+                  {profileGoal.name}
                 </Text>
               </View>
 
@@ -261,22 +329,20 @@ export default function ProfileScreen({ route, navigation }) {
                   <View
                     style={progressBarLeft(
                       windowWidth,
-                      userInfo,
-                      colors.secondary
+                      goalProgress
                     )}
                   ></View>
                   <View
                     style={progressBarRight(
                       windowWidth,
-                      userInfo,
-                      colors.primary
+                      goalProgress
                     )}
                   ></View>
                 </View>
                 <Text
                   style={{ fontSize: 12, color: colors.text, marginTop: 10 }}
                 >
-                  {`You have completed ${userInfo.goalProgress}%. Keep it up!`}
+                  {`You have completed ${goalProgress}%. Keep it up!`}
                 </Text>
               </View>
             </View>
@@ -433,7 +499,8 @@ export default function ProfileScreen({ route, navigation }) {
               marginBottom: 12,
             }}
           >
-            {goal ? "Edit Goal" : "Set Goal"}
+            {"Edit Goal"}
+            {/*{goal ? "Edit Goal" : "Set Goal"}*/}
           </Text>
           <TextInput
             style={{
@@ -444,8 +511,20 @@ export default function ProfileScreen({ route, navigation }) {
             placeholderTextColor={colors.accent2}
             underlineColorAndroid={colors.accent2}
             label="Goal"
-            // onChangeText={handleAmount}
-            // value={form.amount}
+            onChangeText={handleGoalName}
+            value={profileGoal.name}
+          ></TextInput>
+          <TextInput
+            style={{
+              marginBottom: 12,
+              marginHorizontal: 0,
+              color: colors.accent2,
+            }}
+            placeholderTextColor={colors.accent2}
+            underlineColorAndroid={colors.accent2}
+            label="Amount"
+            onChangeText={handleGoalAmount}
+            value={profileGoal.amount}
           ></TextInput>
           <View
             style={{
@@ -474,11 +553,24 @@ export default function ProfileScreen({ route, navigation }) {
                 style={{
                   fontSize: 15,
                   color: colors.accent2,
+                  marginRight: 20,
                   fontWeight: "bold",
                 }}
-                onPress={() => console.log()}
+                onPress={() => goalReset()}
               >
-                CONFIRM
+                RESET
+              </Text>
+            </TouchableHighlight>
+            <TouchableHighlight>
+              <Text
+                style={{
+                  fontSize: 15,
+                  color: colors.accent2,
+                  fontWeight: "bold",
+                }}
+                onPress={() => goalUpdate()}
+              >
+                UPDATE
               </Text>
             </TouchableHighlight>
           </View>
@@ -545,23 +637,23 @@ const styles = StyleSheet.create({
   },
 });
 
-const progressBarLeft = function (windowWidth, userInfo, secondary) {
+const progressBarLeft = function (windowWidth, goalProgress) {
   return {
-    width: (windowWidth / 2) * (userInfo.goalProgress / 100),
+    width: (windowWidth / 2) * (goalProgress / 100),
     height: 22,
     marginTop: 10,
-    backgroundColor: secondary,
+    backgroundColor: "#72C4A6",
     borderRadius: 20,
   };
 };
 
-const progressBarRight = function (windowWidth, userInfo, primary) {
+const progressBarRight = function (windowWidth, goalProgress) {
   return {
-    width: (windowWidth / 2) * ((115 - userInfo.goalProgress) / 100),
+    width: (windowWidth / 2) * ((115 - goalProgress) / 100),
     height: 22,
     marginLeft: -20,
     marginTop: 10,
-    backgroundColor: primary,
+    backgroundColor: goalProgress >= 100 ? ("#72C4A6"):("#EF7971"),
     borderRadius: 20,
     zIndex: -1,
   };
