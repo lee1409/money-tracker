@@ -74,7 +74,7 @@ export default function HomeScreen({ navigation }) {
   const hideDialog = () => setVisible(false);
 
   const handleActionRelease = (isLeft, item) => {
-    setItem({ ...item, isOverspent: isLeft });
+    setItem({ ...item, isOverspent: isLeft === "left" ? false : true });
     setVisible(true);
   };
 

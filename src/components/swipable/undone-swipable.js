@@ -48,7 +48,7 @@ export default ({ callback, item }) => {
         </View>
       }
     >
-      <Text>{`${item.name} for ${item.amount}`}</Text>
+      <Text style={styles.text}>{`${item.name} for ${item.amount}`}</Text>
     </Swipeable>
   );
 };
