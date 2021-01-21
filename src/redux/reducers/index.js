@@ -9,6 +9,8 @@ import {
   incHotSteak,
   resetHotSteak,
   toggleToday,
+  updateEvent,
+  deleteEvent,
 } from "../actions/index";
 
 import { overwriteToday } from "../actions/index";
@@ -23,9 +25,25 @@ import {
 import { addKey, deleteKey } from "../actions/index";
 
 const events = createReducer([], (builder) => {
-  builder.addCase(addEvent, (state, action) => {
-    state.push(action.payload);
-  });
+  builder
+    .addCase(addEvent, (state, action) => {
+      state.push(action.payload);
+    })
+    .addCase(updateEvent, (state, action) => {
+      let index = state.findIndex(
+        (element) => element.uid === action.payload.uid
+      );
+      if (index !== -1) {
+        state.splice(index, 1, action.payload);
+      }
+      console.warn("Index not found: ", index, state, action.payload.uid);
+    })
+    .addCase(deleteEvent, (state, action) => {
+      let index = state.findIndex(
+        (element) => element.uid === action.payload.uid
+      );
+      state.splice(index, 1);
+    });
 });
 
 const categories = createReducer([], (builder) => {
@@ -55,7 +73,7 @@ const today = createReducer([], (builder) => {
         let updatedEvent = { ...event, isCompleted: !event.isCompleted };
         state.splice(index, 1, updatedEvent);
       }
-      console.warn("Index not found: ", index, state, action.payload.uid)
+      console.warn("Index not found: ", index, state, action.payload.uid);
     });
 });
 
