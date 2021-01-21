@@ -83,7 +83,7 @@ const profileGoal = createReducer(
         state = action.payload;
       })
       .addCase(updateGoal, (state, action) => {
-        return action.payload;
+        return Object.assign({}, action.payload, {date: state.date})
       });
   }
 );

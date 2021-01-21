@@ -90,7 +90,7 @@ export default function ProfileScreen({ route, navigation }) {
     hideModal();
   }
 
-  const formatGoal = ()=> { //profileGoal.name
+  const formatGoal = ()=> {
     let goalName = profileGoal.name
     if(goalName.length > 13){
       return goalName.slice(0, 13) + '...'
