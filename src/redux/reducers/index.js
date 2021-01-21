@@ -76,7 +76,7 @@ const categories = createReducer(
 );
 
 const profileGoal = createReducer(
-  {name: "A Gift", amount: 20, date: new Date().toDateString()},
+  {username: "Alice", name: "A Gift", amount: 20, date: new Date().toDateString()},
   (builder) => {
     builder
       .addCase(resetGoal, (state, action) => {

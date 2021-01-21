@@ -29,16 +29,7 @@ import {
 } from "react-native-paper";
 import { BarChart } from "react-native-chart-kit";
 import { useDispatch, useSelector } from "react-redux";
-import { createUUID } from "../utils/index";
 import {resetGoal, updateGoal} from "../redux/actions";
-
-const userInfo = {
-  name: "Lee",
-  streak: 120,
-  score: 80,
-  goal: "A new bicycle",
-  goalProgress: 70,
-};
 
 export default function ProfileScreen({ route, navigation }) {
   const { colors } = useTheme();
@@ -85,6 +76,10 @@ export default function ProfileScreen({ route, navigation }) {
     setProfileGoal({ ...profileGoal, amount });
   };
 
+  const handleUsername = (username) => {
+    setProfileGoal({ ...profileGoal, username});
+  }
+
   const goalReset = ()=> {
     setProfileGoal({...profileGoal, date: new Date().toDateString()})
     dispatch(resetGoal(profileGoal));
@@ -93,6 +88,14 @@ export default function ProfileScreen({ route, navigation }) {
   const goalUpdate = ()=> {
     dispatch(updateGoal(profileGoal));
     hideModal();
+  }
+
+  const formatGoal = ()=> { //profileGoal.name
+    let goalName = profileGoal.name
+    if(goalName.length > 13){
+      return goalName.slice(0, 13) + '...'
+    }
+    return goalName
   }
 
   useEffect(() => {
@@ -203,7 +206,7 @@ export default function ProfileScreen({ route, navigation }) {
             }}
           ></IconButton>
         </View>
-        <Text style={styles.text2}>{userInfo.name}</Text>
+        <Text style={styles.text2}>{profileGoal.username}</Text>
         <Text style={styles.text3}>Take a look at your accomplishment</Text>
 
         {/*--------streak & score---------------------------------*/}
@@ -309,11 +312,11 @@ export default function ProfileScreen({ route, navigation }) {
                     fontWeight: "bold",
                     color: colors.secondary,
                     textAlign: "center",
-                    marginLeft: -20
+                    marginLeft: -25
                   }}
                 >
                   {/*{userInfo.goal}*/}
-                  {profileGoal.name}
+                  {formatGoal()}
                 </Text>
               </View>
 
@@ -499,9 +502,21 @@ export default function ProfileScreen({ route, navigation }) {
               marginBottom: 12,
             }}
           >
-            {"Edit Goal"}
+            {"Profile"}
             {/*{goal ? "Edit Goal" : "Set Goal"}*/}
           </Text>
+          <TextInput
+            style={{
+              marginBottom: 12,
+              marginHorizontal: 0,
+              color: colors.accent2,
+            }}
+            placeholderTextColor={colors.accent2}
+            underlineColorAndroid={colors.accent2}
+            label="Username"
+            onChangeText={handleUsername}
+            value={profileGoal.username}
+          ></TextInput>
           <TextInput
             style={{
               marginBottom: 12,
