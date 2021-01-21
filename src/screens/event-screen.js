@@ -10,7 +10,7 @@ import {
   IconButton,
   TouchableRipple,
 } from "react-native-paper";
-import { addEvent } from "../redux/actions/index";
+import { addEvent, deleteEvent, updateEvent } from "../redux/actions/index";
 import { useDispatch } from "react-redux";
 import { createUUID } from "../utils/index";
 
@@ -73,11 +73,11 @@ export default function EventScreen({ route, navigation }) {
   const handleSave = () => {
     if (type === 'CREATE') {
       dispatch(addEvent({ ...form, amount: Number(form.amount) }));
-      navigation.goBack();
     }
     else if (type === 'EDIT') {
-      
+      dispatch(updateEvent(form));
     }
+    navigation.goBack();
   }
 
   return (
@@ -110,7 +110,7 @@ export default function EventScreen({ route, navigation }) {
             <Button
               labelStyle={{ color: "#fff" }}
               onPress={() => {
-                dispatch(addEvent({ ...form, amount: Number(form.amount) }));
+                dispatch(deleteEvent(form.uid));
                 navigation.goBack();
               }}
               style={{
@@ -158,7 +158,7 @@ export default function EventScreen({ route, navigation }) {
         style={{ marginBottom: 12, marginHorizontal: 24 }}
         label="Amount"
         onChangeText={handleAmount}
-        value={form.amount.toString()}
+        value={form.amount?.toString()}
       ></TextInput>
       <Text
         style={{
