@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { addCategory, deleteCategory } from "../redux/actions/index";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Tries from "../utils/tries";
-import { color } from "react-native-reanimated";
 
 const getItem = (data, index) => {
   return data[index];
@@ -20,13 +19,13 @@ export default function CreateCategoryScreen({ navigation }) {
   const { colors } = useTheme();
   const categories = useSelector((state) => state.categories);
   const tries = React.useMemo(() => new Tries(categories), [categories]);
-
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [result, setResult] = React.useState(categories);
+  const ref = React.useRef();
+  ref.current = tries.search(searchQuery);
+
 
   const onChangeSearch = (query) => {
     setSearchQuery(query);
-    setResult(tries.search(query));
   };
 
   const categoryDispatch = useDispatch();
@@ -59,21 +58,19 @@ export default function CreateCategoryScreen({ navigation }) {
         placeholder="Search"
         onChangeText={onChangeSearch}
         onSubmitEditing={() => {
-          if (!result.length) {
+          if (!ref.current.length) {
             categoryDispatch(addCategory(searchQuery));
-            navigation.navigate("Event", { category: searchQuery });
           }
+          navigation.navigate("Event", { category: searchQuery });
         }}
         value={searchQuery}
       />
-      {result.length ? (
+      {ref.current.length ? (
         <VirtualizedList
-          keyExtractor={(item, index) => {
-            return item[index];
-          }}
+          keyExtractor={(item) => item}
           ItemSeparatorComponent={() => <Divider></Divider>}
           contentContainerStyle={{borderRadius: 12, backgroundColor: colors.primary3}}
-          data={result}
+          data={ref.current}
           getItem={getItem}
           getItemCount={getItemCount}
           renderItem={({ item, index }) => (
