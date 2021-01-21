@@ -38,30 +38,6 @@ const userInfo = {
   goal: "A new bicycle",
   goalProgress: 70,
 };
-//
-// let chartData = {
-//   labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-//   datasets: [
-//     {
-//       data: [20, 45, 28, 80, 99, 43, 58]
-//     }
-//   ]
-// };
-
-const expenses = [
-  {
-    item: "Frozen yogurt",
-    amount: "15.9",
-  },
-  {
-    item: "Breakfast",
-    amount: "50",
-  },
-  {
-    item: "Lunch",
-    amount: "20",
-  },
-];
 
 export default function ProfileScreen({ route, navigation }) {
   const { colors } = useTheme();
@@ -86,37 +62,41 @@ export default function ProfileScreen({ route, navigation }) {
   let chartConfig = config;
 
   const [visible, setVisible] = React.useState(false);
-
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
+
   const [goal, setGoal] = useState(null);
-
-  useEffect(() => {
-    chartConfig = config;
-  }, []);
-
   const dispatch = useDispatch();
   const today = useSelector((state) => state.today);
   const histories = useSelector((state) => state.histories);
   const hotSteak = useSelector((state) => state.hotSteak);
   let score = Math.ceil(50 + ((hotSteak / 3) % 15));
+  const [historyDate, setHistoryDate] = useState([]);
+  const [historyTotalSpent, setHistoryTotalSpent] = useState([]);
 
-  let historyDate = [
-    ...new Set(histories.map((context) => context.date)),
-  ].slice(0, 7);
-  const left = 7 - historyDate.length;
-  for (let i = 0; i < left; i++) {
-    historyDate.push("-");
-  }
-  console.log(historyDate);
-  // const historyDate = histories.map((context) => {context.date}).slice(0, 7)
+  useEffect(() => {
+    chartConfig = config;
 
-  const historyTotalSpent = (historyDate) => {
+    const sortedDec = histories.sort((a, b) => {
+      const aDate = new Date(a.date)
+      const bDate = new Date(b.date)
+      return bDate.getTime() - aDate.getTime()
+    })
+    let dates = [
+      ...new Set(sortedDec.map((context) => context.date)),
+    ].slice(0, 7);
+    const left = 7 - historyDate.length;
+    for (let i = 0; i < left; i++) {
+      historyDate.push("-");
+    }
+    setHistoryDate(dates)
+    console.log(historyDate);
+
     let total = [];
     for (let i = 0; i < historyDate.length; i++) {
       let current = 0;
       for (let j = 0; j < histories.length; j++) {
-        if (histories[j].date === historyDate[i]) {
+        if (histories[j].date === historyDate[i] && histories[j].isCompleted) {
           if (context.isOverspent) {
             current += context.amount * (1 + context.spentPercent);
             score -= context.range;
@@ -128,13 +108,14 @@ export default function ProfileScreen({ route, navigation }) {
       }
       total.push(current);
     }
-    return total;
-  };
+    setHistoryTotalSpent(total);
+  }, []);
+
   let chartData = {
     labels: historyDate,
     datasets: [
       {
-        data: historyTotalSpent(historyDate),
+        data: historyTotalSpent,
       },
     ],
   };
