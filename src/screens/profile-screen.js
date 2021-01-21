@@ -2,30 +2,22 @@ import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
-  Image,
-  KeyboardAvoidingView,
   Dimensions,
   ScrollView,
   TouchableHighlight,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon } from "react-native-elements";
 import {
   TextInput,
   Text,
-  Menu,
-  Button,
   useTheme,
   IconButton,
-  TouchableRipple,
   FAB,
   DataTable,
   Card,
-  Paragraph,
   Modal,
   Portal,
-  Provider,
 } from "react-native-paper";
 import { BarChart } from "react-native-chart-kit";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,7 +25,6 @@ import {resetGoal, updateGoal} from "../redux/actions";
 
 export default function ProfileScreen({ route, navigation }) {
   const { colors } = useTheme();
-
   const windowWidth = Dimensions.get("window").width;
   const windowHeight = Dimensions.get("window").height;
 
@@ -46,7 +37,6 @@ export default function ProfileScreen({ route, navigation }) {
     backgroundGradientFromOpacity: 0,
     backgroundGradientTo: colors.primary3,
     backgroundGradientToOpacity: 0,
-    // color: (opacity = 1) => `rgba(244, 128, 36, ${opacity})`,
     color: (opacity = 1) => colors.secondary,
     strokeWidth: 3, // optional, default 3
     barPercentage: barSize(),
@@ -250,7 +240,6 @@ export default function ProfileScreen({ route, navigation }) {
                     </Text>
                   </View>
                   <Icon name="fire" type="font-awesome" color={"yellow"} />
-                  {/*<Icon name='FireTwoTone' type='antdesign' color={"yellow"}/>*/}
                 </View>
               </View>
             </Card.Content>
@@ -273,7 +262,6 @@ export default function ProfileScreen({ route, navigation }) {
                 }}
               >
                 <Text style={{ fontSize: 20, color: colors.primary3 }}>
-                  {/*{`${userInfo.score}%`}*/}
                   {`${score}%`}
                 </Text>
                 <Text style={{ fontSize: 16, color: colors.primary3 }}>
@@ -381,12 +369,9 @@ export default function ProfileScreen({ route, navigation }) {
           </View>
           <BarChart
             style={{
-              // paddingLeft: -25,
               paddingTop: 15,
               paddingBottom: 10,
               borderRadius: 5,
-              // marginLeft: -5,
-              // backgroundColor: colors.primary3,
               backgroundColor: "rgba(10,10,10,0.6)",
             }}
             data={chartData}
@@ -426,16 +411,6 @@ export default function ProfileScreen({ route, navigation }) {
                 {"Today"}
               </Text>
             </View>
-            {/*<DataTable.Pagination*/}
-            {/*  page={1}*/}
-            {/*  numberOfPages={3}*/}
-            {/*  onPageChange={page => {*/}
-            {/*    console.log(page);*/}
-            {/*  }}*/}
-            {/*  label={<Text style={{*/}
-            {/*      fontSize: 16, fontWeight: "bold", color: colors.text,*/}
-            {/*    }}>{"Today"}</Text>}*/}
-            {/*/>*/}
 
             <DataTable.Header>
               <DataTable.Cell>
@@ -503,7 +478,6 @@ export default function ProfileScreen({ route, navigation }) {
             }}
           >
             {"Profile"}
-            {/*{goal ? "Edit Goal" : "Set Goal"}*/}
           </Text>
           <TextInput
             style={{
@@ -594,9 +568,9 @@ export default function ProfileScreen({ route, navigation }) {
       <FAB icon="plus" style={styles.fab} onPress={() => showModal()}></FAB>
 
       <View
-        style={backgroundCircle1(windowWidth, windowHeight, colors.primary)}
+        style={backgroundCircle1(windowWidth, windowHeight)}
       />
-      <View style={backgroundCircle2(windowHeight, colors.secondary)} />
+      <View style={backgroundCircle2(windowHeight)} />
     </SafeAreaView>
   );
 }
@@ -674,7 +648,7 @@ const progressBarRight = function (windowWidth, goalProgress) {
   };
 };
 
-const backgroundCircle1 = function (windowWidth, windowHeight, primary) {
+const backgroundCircle1 = function (windowWidth, windowHeight) {
   return {
     position: "absolute",
     marginLeft: windowWidth / 1.3,
@@ -682,12 +656,12 @@ const backgroundCircle1 = function (windowWidth, windowHeight, primary) {
     width: 280,
     height: 280,
     borderRadius: 300 / 2,
-    backgroundColor: primary,
+    backgroundColor: "#EF7971",
     zIndex: -10,
   };
 };
 
-const backgroundCircle2 = function (windowHeight, secondary) {
+const backgroundCircle2 = function (windowHeight) {
   return {
     position: "absolute",
     marginLeft: -50,
@@ -695,7 +669,7 @@ const backgroundCircle2 = function (windowHeight, secondary) {
     width: 300,
     height: 300,
     borderRadius: 300 / 2,
-    backgroundColor: secondary,
+    backgroundColor: "#72C4A6",
     zIndex: -10,
   };
 };
