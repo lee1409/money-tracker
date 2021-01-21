@@ -8,6 +8,7 @@ import {
   updateToday,
   incHotSteak,
   resetHotSteak,
+  toggleToday,
 } from "../actions/index";
 
 import { overwriteToday } from "../actions/index";
@@ -46,6 +47,15 @@ const today = createReducer([], (builder) => {
     .addCase(updateToday, (state, action) => {
       let index = state.findIndex((ele) => ele.uid === action.payload.uid);
       state.splice(index, 1, action.payload);
+    })
+    .addCase(toggleToday, (state, action) => {
+      let index = state.findIndex((ele) => ele.uid === action.payload);
+      if (index !== -1) {
+        let event = state[index];
+        let updatedEvent = { ...event, isCompleted: !event.isCompleted };
+        state.splice(index, 1, updatedEvent);
+      }
+      console.warn("Index not found: ", index, state, action.payload.uid)
     });
 });
 

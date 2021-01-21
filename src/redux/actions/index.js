@@ -78,3 +78,5 @@ export const addKey = createAction("ADD_KEY", (key) => ({ payload: key }));
 export const deleteKey = createAction("DELETE_KEY", (key) => ({
   payload: key,
 }));
+
+export const toggleToday = createAction('TOGGLE_TODAY', (uid) => ({payload: uid}));

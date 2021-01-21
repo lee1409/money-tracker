@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, Image } from "react-native";
 import { useTheme } from "react-native-paper";
 import Swipeable from "react-native-swipeable";
 import { useDispatch } from "react-redux";
+import { toggleToday } from "../../redux/actions";
 
 export default ({ callback, item }) => {
   const theme = useTheme();
@@ -12,7 +13,7 @@ export default ({ callback, item }) => {
     : theme.colors.secondary;
 
   const handleActionRelease = () => {
-    // TODO add toggle uncomplete
+    dispatch(toggleToday(item.uid));
 
     if (callback) {
       callback();
