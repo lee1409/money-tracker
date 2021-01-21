@@ -9,7 +9,6 @@ import {
   useTheme,
   IconButton,
   TouchableRipple,
-  
 } from "react-native-paper";
 import { addEvent } from "../redux/actions/index";
 import { useDispatch } from "react-redux";
@@ -25,8 +24,9 @@ const days = [
   "Saturday",
 ];
 
-export default function CreateEventScreen({ route, navigation }) {
+export default function EventScreen({ route, navigation }) {
   const { colors } = useTheme();
+  const [type, setType] = React.useState("CREATE");
   const [form, setForm] = React.useState({
     uid: createUUID(),
     amount: null,
@@ -40,6 +40,15 @@ export default function CreateEventScreen({ route, navigation }) {
       setForm({ ...form, category: route.params.category });
     }
   }, [route.params?.category]);
+
+  // Checking if edit event
+  React.useEffect(() => {
+    if (route.params?.form) {
+      const { uid, amount, category, name, day } = route.params.form;
+      setForm({ uid, amount, category, name, day });
+      setType("EDIT");
+    }
+  }, []);
 
   const [visible, setVisible] = React.useState(false);
   const dispatch = useDispatch();
@@ -61,9 +70,23 @@ export default function CreateEventScreen({ route, navigation }) {
     setForm({ ...form, amount });
   };
 
+  const handleSave = () => {
+    if (type === 'CREATE') {
+      dispatch(addEvent({ ...form, amount: Number(form.amount) }));
+      navigation.goBack();
+    }
+    else if (type === 'EDIT') {
+      
+    }
+  }
+
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: colors.primary, paddingHorizontal: 12 }}
+      style={{
+        flex: 1,
+        backgroundColor: colors.primary,
+        paddingHorizontal: 12,
+      }}
     >
       <View
         style={{
@@ -82,20 +105,34 @@ export default function CreateEventScreen({ route, navigation }) {
             navigation.goBack();
           }}
         ></IconButton>
-        <Button
-          labelStyle={{ color: colors.accent2 }}
-          onPress={() => {
-            dispatch(addEvent({ ...form, amount: Number(form.amount) }));
-            navigation.goBack();
-          }}
-          mode="contained"
-          style={{
-            backgroundColor: colors.primary2,
-            alignSelf: "center",
-          }}
-        >
-          Save
-        </Button>
+        <View style={{ flexDirection: "row" }}>
+          {type === "EDIT" && (
+            <Button
+              labelStyle={{ color: "#fff" }}
+              onPress={() => {
+                dispatch(addEvent({ ...form, amount: Number(form.amount) }));
+                navigation.goBack();
+              }}
+              style={{
+                alignSelf: "center",
+              }}
+            >
+              Delete
+            </Button>
+          )}
+
+          <Button
+            labelStyle={{ color: colors.accent2 }}
+            onPress={handleSave}
+            mode="contained"
+            style={{
+              backgroundColor: colors.primary2,
+              alignSelf: "center",
+            }}
+          >
+            Save
+          </Button>
+        </View>
       </View>
 
       <Text
@@ -117,11 +154,11 @@ export default function CreateEventScreen({ route, navigation }) {
         spend
       </Text>
       <TextInput
-        keyboardType={'numeric'}
+        keyboardType={"numeric"}
         style={{ marginBottom: 12, marginHorizontal: 24 }}
         label="Amount"
         onChangeText={handleAmount}
-        value={form.amount}
+        value={form.amount.toString()}
       ></TextInput>
       <Text
         style={{

@@ -6,9 +6,10 @@ import Swipeable from "./base";
 
 export default ({ callback, item }) => {
   const theme = useTheme();
-
+  const navigation = useNavigation();
   return (
     <Swipeable
+      onPress={() => navigation.navigate("Event", { form: item })}
       onLeftActionRelease={() => callback("left", item)}
       onRightActionRelease={() => callback("right", item)}
       leftContent={

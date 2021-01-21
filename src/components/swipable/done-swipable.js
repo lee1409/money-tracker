@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import { Text, View, StyleSheet, Image } from "react-native";
 import { useTheme } from "react-native-paper";
@@ -6,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { toggleToday } from "../../redux/actions";
 
 export default ({ callback, item }) => {
+  const navigation = useNavigation();
   const theme = useTheme();
   const dispatch = useDispatch();
   const color = item.isOverspent
@@ -22,6 +24,7 @@ export default ({ callback, item }) => {
 
   return (
     <Swipeable
+      onPress={() => navigation.navigate("Event", { form: item })}
       onLeftActionRelease={handleActionRelease}
       leftContent={
         <View

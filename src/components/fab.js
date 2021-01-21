@@ -17,7 +17,7 @@ const actions = [
   {
     text: "Create event",
     icon: require("../assets/flag.png"),
-    name: "CreateEvent",
+    name: "Event",
     color: "#488B80",
     position: 1
   },

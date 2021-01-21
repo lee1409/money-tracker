@@ -61,7 +61,7 @@ export default function CreateCategoryScreen({ navigation }) {
         onSubmitEditing={() => {
           if (!result.length) {
             categoryDispatch(addCategory(searchQuery));
-            navigation.navigate("CreateEvent", { category: searchQuery });
+            navigation.navigate("Event", { category: searchQuery });
           }
         }}
         value={searchQuery}
@@ -79,7 +79,7 @@ export default function CreateCategoryScreen({ navigation }) {
           renderItem={({ item, index }) => (
             <List.Item
               onPress={() =>
-                navigation.navigate("CreateEvent", { category: item })
+                navigation.navigate("Event", { category: item })
               }
               right={() => (
                 <IconButton
