@@ -1,4 +1,3 @@
-import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import { TouchableOpacity } from "react-native";
 import { useTheme } from "react-native-paper";
@@ -11,13 +10,9 @@ export default ({
   rightContent,
   children,
   style,
+  onPress
 }) => {
-  const navigation = useNavigation()
   const theme = useTheme();
-
-  const handleNavigation = () => {
-    navigation.navigate('CreateEvent');
-  }
 
   return (
     <Swipeable
@@ -27,7 +22,7 @@ export default ({
       rightContent={rightContent}
     >
       <TouchableOpacity
-        onPress={handleNavigation}
+        onPress={onPress}
         style={{
           flexDirection: "column",
           justifyContent: "center",
