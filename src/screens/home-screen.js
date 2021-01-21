@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { IconButton, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Swipeable from "../components/swipable";
+import Swipable from "../components/swipable";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addBulkHistory,
@@ -112,20 +112,12 @@ export default function HomeScreen({ navigation }) {
             keyExtractor={(item) => item["uid"]}
             getItem={(data, index) => data[index]}
             getItemCount={(data) => data.length}
-            renderItem={({ item, index }) => {
-              return (
-                <Swipeable
-                  onRightActionRelease={() =>
-                    handleActionRelease(false, item, index)
-                  }
-                  onLeftActionRelease={() =>
-                    handleActionRelease(true, item, index)
-                  }
-                >
-                  {`${item.name} for ${item.amount}`}
-                </Swipeable>
-              );
-            }}
+            renderItem={({ item }) => (
+              <Swipable.Undone
+                item={item}
+                callback={handleActionRelease}
+              ></Swipable.Undone>
+            )}
             ItemSeparatorComponent={() => (
               <View style={{ width: "100%", height: 8 }}></View>
             )}
@@ -141,20 +133,9 @@ export default function HomeScreen({ navigation }) {
             data={today.filter((el) => el.isCompleted === true)}
             getItem={(data, index) => data[index]}
             getItemCount={(data) => data.length}
-            renderItem={({ item }) => {
-              return (
-                <Text
-                  style={[
-                    styles.completedText,
-                    {
-                      color: item.isOverspent
-                        ? theme.colors.primary
-                        : theme.colors.secondary,
-                    },
-                  ]}
-                >{`${item.name} for ${item.amount}`}</Text>
-              );
-            }}
+            renderItem={({ item }) => (
+              <Swipable.Done item={item}></Swipable.Done>
+            )}
             keyExtractor={(item) => item.uid}
             ItemSeparatorComponent={() => (
               <View style={{ width: "100%", height: 8 }}></View>
@@ -194,13 +175,6 @@ const styles = StyleSheet.create({
     marginBottom: 50,
     margin: 20,
     color: "#EF7971",
-  },
-  completedText: {
-    fontSize: 20,
-    marginHorizontal: 10,
-    padding: 10,
-    color: "#EF7971",
-    textDecorationLine: "line-through",
   },
   dialog_button: {
     fontSize: 20,

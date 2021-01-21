@@ -1,14 +1,16 @@
+import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import { Text, View, StyleSheet } from "react-native";
 import { useTheme } from "react-native-paper";
-import Swipeable from "react-native-swipeable";
+import Swipeable from "./base";
 
-export default ({ onLeftActionRelease, onRightActionRelease, children }) => {
+export default ({ callback, item }) => {
   const theme = useTheme();
+
   return (
     <Swipeable
-      onLeftActionRelease={onRightActionRelease}
-      onRightActionRelease={onLeftActionRelease}
+      onLeftActionRelease={() => callback("left", item)}
+      onRightActionRelease={() => callback("right", item)}
       leftContent={
         <View
           style={[
@@ -46,19 +48,7 @@ export default ({ onLeftActionRelease, onRightActionRelease, children }) => {
         </View>
       }
     >
-      <View
-        style={{
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          height: 72,
-          backgroundColor: theme.colors.primary2,
-        }}
-      >
-        <Text style={styles.text}>
-          {children}
-        </Text>
-      </View>
+      <Text>{`${item.name} for ${item.amount}`}</Text>
     </Swipeable>
   );
 };
