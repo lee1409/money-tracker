@@ -7,6 +7,9 @@ import { useDispatch } from "react-redux";
 export default ({ callback, item }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const color = item.isOverspent
+    ? theme.colors.primary
+    : theme.colors.secondary;
 
   const handleActionRelease = () => {
     // TODO add toggle uncomplete
@@ -14,7 +17,7 @@ export default ({ callback, item }) => {
     if (callback) {
       callback();
     }
-  }
+  };
 
   return (
     <Swipeable
@@ -24,7 +27,7 @@ export default ({ callback, item }) => {
           style={[
             styles.swipeItem,
             styles.leftSwipeItem,
-            { backgroundColor: theme.colors.secondary },
+            { backgroundColor: color },
           ]}
         >
           <Image
@@ -38,12 +41,12 @@ export default ({ callback, item }) => {
         style={[
           styles.completedText,
           {
-            color: item.isOverspent
-              ? theme.colors.primary
-              : theme.colors.secondary,
+            color,
           },
         ]}
-      >{`     ${item.name} for ${item.amount}`}</Text>
+      >
+        {`     ${item.name} for ${item.amount}`}{" "}
+      </Text>
     </Swipeable>
   );
 };
