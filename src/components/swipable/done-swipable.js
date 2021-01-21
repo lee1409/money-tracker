@@ -58,15 +58,10 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     paddingRight: 12,
   },
-  text: {
-    color: "#fff",
-    fontSize: 18,
-  },
   completedText: {
     fontSize: 20,
     marginHorizontal: 10,
     padding: 10,
-    color: "#EF7971",
     textDecorationLine: "line-through",
   },
 });
