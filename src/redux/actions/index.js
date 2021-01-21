@@ -43,6 +43,14 @@ export const deleteCategory = createAction("DELETE_CATEGORY", (category) => ({
   payload: category,
 }));
 
+export const resetGoal = createAction("RESET_GOAL", (goal) => ({
+  payload: goal,
+}));
+
+export const updateGoal = createAction("UPDATE_GOAL", (goal) => ({
+  payload: goal,
+}));
+
 export const initHistory = createAction("INITIAL_HISTORY", (history) => ({
   payload: history,
 }));
