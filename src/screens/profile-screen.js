@@ -20,7 +20,7 @@ import {
 import {
   BarChart,
 } from "react-native-chart-kit";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {createUUID} from "../utils/index";
 
 const userInfo = {
@@ -30,15 +30,15 @@ const userInfo = {
   goal: "A new bicycle",
   goalProgress: 70,
 }
-
-const data = {
-  labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-  datasets: [
-    {
-      data: [20, 45, 28, 80, 99, 43, 58]
-    }
-  ]
-};
+//
+// let chartData = {
+//   labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+//   datasets: [
+//     {
+//       data: [20, 45, 28, 80, 99, 43, 58]
+//     }
+//   ]
+// };
 
 const expenses = [
   {
@@ -88,7 +88,47 @@ export default function ProfileScreen({route, navigation}) {
   }, []);
 
   const dispatch = useDispatch();
+  const today = useSelector((state) => state.today);
+  const histories = useSelector((state) => state.histories);
+  const hotSteak = useSelector((state) => state.hotSteak);
+  let score = Math.ceil(50 + (hotSteak/3)%15);
 
+  let historyDate = [...new Set(histories.map(context => context.date))].slice(0, 7);
+  const left = 7-historyDate.length
+  for(let i=0; i<left; i++){
+    historyDate.push('-')
+  }
+  console.log(historyDate)
+  // const historyDate = histories.map((context) => {context.date}).slice(0, 7)
+
+  const historyTotalSpent = (historyDate) => {
+    let total = [];
+    for(let i=0; i<historyDate.length; i++){
+      let current = 0;
+      for(let j=0; j<histories.length; j++) {
+        if(histories[j].date === historyDate[i]){
+          if(context.isOverspent) {
+            current += context.amount * (1 + context.spentPercent);
+            score -= context.range;
+          }
+          else {
+            current += context.amount * (1 - context.spentPercent)
+            score += context.range;
+          }
+        }
+      }
+      total.push(current)
+    }
+    return total;
+  }
+  let chartData = {
+    labels: historyDate,
+    datasets: [
+      {
+        data: historyTotalSpent(historyDate)
+      }
+    ]
+  };
 
   return (
     <SafeAreaView
@@ -136,7 +176,8 @@ export default function ProfileScreen({route, navigation}) {
                 }}
               >
                 <Text style={{fontSize: 20, color: colors.primary3,}}>
-                  {`${userInfo.streak}`}
+                  {/*{`${userInfo.streak}`}*/}
+                  {hotSteak}
                 </Text>
                 <View
                   style={{
@@ -178,7 +219,8 @@ export default function ProfileScreen({route, navigation}) {
                 }}
               >
                 <Text style={{fontSize: 20, color: colors.primary3,}}>
-                  {`${userInfo.score}%`}
+                  {/*{`${userInfo.score}%`}*/}
+                  {`${score}%`}
                 </Text>
                 <Text style={{fontSize: 16, color: colors.primary3,}}>
                   Score
@@ -266,7 +308,7 @@ export default function ProfileScreen({route, navigation}) {
               // backgroundColor: colors.primary3,
               backgroundColor: 'rgba(10,10,10,0.6)',
             }}
-            data={data}
+            data={chartData}
             width={windowWidth - (windowWidth * 0.3)}
             height={220}
             yAxisLabel="$"
@@ -328,10 +370,10 @@ export default function ProfileScreen({route, navigation}) {
                 </Text>
               </DataTable.Cell>
             </DataTable.Header>
-            {expenses.map((expense) => (
+            {today.map((expense) => (
               <DataTable.Row>
                 <DataTable.Cell style={{fontSize: 12, color: colors.text,}}>
-                  {expense.item}
+                  {expense.name}
                 </DataTable.Cell>
                 <DataTable.Cell style={{fontSize: 12, color: colors.text,}} numeric>
                   {expense.amount}
@@ -414,6 +456,7 @@ export default function ProfileScreen({route, navigation}) {
            style={styles.fab}
            onPress={() => showModal()}>
       </FAB>
+
       <View style={backgroundCircle1(windowWidth, windowHeight,colors.primary)} />
       <View style={backgroundCircle2(windowHeight,colors.secondary)} />
     </SafeAreaView>
@@ -460,7 +503,7 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     padding: 10,
     borderRadius: 5,
-    backgroundColor: "#F0CFA3",
+    backgroundColor: "#FFF9F0",
   },
   fab: {
     position: 'absolute',
