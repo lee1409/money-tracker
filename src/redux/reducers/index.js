@@ -46,16 +46,34 @@ const events = createReducer([], (builder) => {
     });
 });
 
-const categories = createReducer([], (builder) => {
-  builder
-    .addCase(addCategory, (state, action) => {
-      state.push(action.payload);
-    })
-    .addCase(deleteCategory, (state, action) => {
-      let index = state.indexOf(action.payload);
-      state.splice(index, 1);
-    });
-});
+const categories = createReducer(
+  [
+    "Housing",
+    "Transportation",
+    "Food",
+    "Utilities",
+    "Clothing",
+    "Medical",
+    "Insurance",
+    "Household Items",
+    "Personal",
+    "Debt",
+    "Retirement",
+    "Education",
+    "Savings",
+    "Gifts",
+  ],
+  (builder) => {
+    builder
+      .addCase(addCategory, (state, action) => {
+        state.push(action.payload);
+      })
+      .addCase(deleteCategory, (state, action) => {
+        let index = state.indexOf(action.payload);
+        state.splice(index, 1);
+      });
+  }
+);
 
 const today = createReducer([], (builder) => {
   builder
