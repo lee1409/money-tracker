@@ -10,7 +10,9 @@ import {
   resetHotSteak,
   toggleToday,
   updateEvent,
-  deleteEvent, resetGoal, updateGoal,
+  deleteEvent,
+  resetGoal,
+  updateGoal,
 } from "../actions/index";
 
 import { overwriteToday } from "../actions/index";
@@ -22,7 +24,7 @@ import {
   updateHistory,
   addBulkHistory,
 } from "../actions/index";
-import { addKey, deleteKey } from "../actions/index";
+import { updtEnableAuth, updtDisableAuth } from "../actions/index";
 
 const events = createReducer([], (builder) => {
   builder
@@ -76,14 +78,19 @@ const categories = createReducer(
 );
 
 const profileGoal = createReducer(
-  {username: "Alice", name: "A Gift", amount: 20, date: new Date().toDateString()},
+  {
+    username: "Alice",
+    name: "A Gift",
+    amount: 20,
+    date: new Date().toDateString(),
+  },
   (builder) => {
     builder
       .addCase(resetGoal, (state, action) => {
         state = action.payload;
       })
       .addCase(updateGoal, (state, action) => {
-        return Object.assign({}, action.payload, {date: state.date})
+        return Object.assign({}, action.payload, { date: state.date });
       });
   }
 );
@@ -142,16 +149,24 @@ const histories = createReducer([], (builder) => {
     });
 });
 
-const keys = createReducer([], (builder) => {
-  builder
-    .addCase(addKey, (state, action) => {
-      state.push(action.payload.key);
-    })
-    .addCase(deleteKey, (state, action) => {
-      let index = state.indexOf(action.payload);
-      state.splice(index, 1);
-    });
-});
+const keys = createReducer(
+  { first_access: true, allow_auth: false },
+  (builder) => {
+    builder
+      .addCase(updtEnableAuth, (state, action) => {
+        return Object.assign({}, action.payload, {
+          first_access: false,
+          allow_auth: true,
+        });
+      })
+      .addCase(updtDisableAuth, (state, action) => {
+        return Object.assign({}, action.payload, {
+          first_access: false,
+          allow_auth: false,
+        });
+      });
+  }
+);
 
 export default combineReducers({
   todos,
@@ -163,5 +178,5 @@ export default combineReducers({
   today,
   hotSteak,
   keys,
-  profileGoal
+  profileGoal,
 });

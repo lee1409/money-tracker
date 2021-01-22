@@ -5,6 +5,7 @@ import {
   Dimensions,
   ScrollView,
   TouchableHighlight,
+  Switch,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Icon } from "react-native-elements";
@@ -21,7 +22,8 @@ import {
 } from "react-native-paper";
 import { BarChart } from "react-native-chart-kit";
 import { useDispatch, useSelector } from "react-redux";
-import {resetGoal, updateGoal} from "../redux/actions";
+import { resetGoal, updateGoal } from "../redux/actions";
+import { updtDisableAuth, updtEnableAuth } from "../redux/actions/index";
 
 export default function ProfileScreen({ route, navigation }) {
   const { colors } = useTheme();
@@ -52,11 +54,16 @@ export default function ProfileScreen({ route, navigation }) {
   const histories = useSelector((state) => state.histories);
   const hotSteak = useSelector((state) => state.hotSteak);
   const profileGoal_ = useSelector((state) => state.profileGoal);
+  const keys = useSelector((state) => state.keys);
+
   let score = Math.ceil(50 + ((hotSteak / 3) % 15));
   const [historyDate, setHistoryDate] = useState([]);
   const [historyTotalSpent, setHistoryTotalSpent] = useState([]);
   const [goalProgress, setGoalProgress] = useState(0);
   const [profileGoal, setProfileGoal] = useState(profileGoal_);
+  const [key, setKey] = useState(keys);
+  const [allowAuth, setAllowAuth] = useState(keys.allow_auth);
+  const [firstAccess, setFirstAccess] = useState(keys.first_access);
 
   const handleGoalName = (name) => {
     setProfileGoal({ ...profileGoal, name });
@@ -67,64 +74,76 @@ export default function ProfileScreen({ route, navigation }) {
   };
 
   const handleUsername = (username) => {
-    setProfileGoal({ ...profileGoal, username});
-  }
+    setProfileGoal({ ...profileGoal, username });
+  };
 
-  const goalReset = ()=> {
-    setProfileGoal({...profileGoal, date: new Date().toDateString()})
+  const goalReset = () => {
+    setProfileGoal({ ...profileGoal, date: new Date().toDateString() });
     dispatch(resetGoal(profileGoal));
     hideModal();
-  }
-  const goalUpdate = ()=> {
+  };
+  const goalUpdate = () => {
     dispatch(updateGoal(profileGoal));
     hideModal();
-  }
+  };
 
-  const formatGoal = ()=> {
-    let goalName = profileGoal.name
-    if(goalName.length > 13){
-      return goalName.slice(0, 13) + '...'
+  const formatGoal = () => {
+    let goalName = profileGoal.name;
+    if (goalName.length > 13) {
+      return goalName.slice(0, 13) + "...";
     }
-    return goalName
-  }
+    return goalName;
+  };
+
+  const toggleAuth = (value) => {
+    setAllowAuth(value);
+    if (value){
+      dispatch(updtEnableAuth());
+    }else{
+      dispatch(updtDisableAuth());
+    }
+  };
 
   useEffect(() => {
+
     chartConfig = config;
 
     // Graph Data
     const sortedDec = histories.sort((a, b) => {
-      const aDate = new Date(a.date)
-      const bDate = new Date(b.date)
-      return bDate.getTime() - aDate.getTime()
-    })
+      const aDate = new Date(a.date);
+      const bDate = new Date(b.date);
+      return bDate.getTime() - aDate.getTime();
+    });
     let dates = [
-      ...new Set(sortedDec.map((context) => {
-        let tempDate = new Date(context.date)
-        let dd = tempDate.getDate();
-        let mm = tempDate.getMonth()+1;
-        if(dd<10) dd='0'+dd;
-        if(mm<10) mm='0'+mm;
-        return dd+'/'+mm
-      })),
+      ...new Set(
+        sortedDec.map((context) => {
+          let tempDate = new Date(context.date);
+          let dd = tempDate.getDate();
+          let mm = tempDate.getMonth() + 1;
+          if (dd < 10) dd = "0" + dd;
+          if (mm < 10) mm = "0" + mm;
+          return dd + "/" + mm;
+        })
+      ),
     ].slice(0, 7);
     const left = 7 - historyDate.length;
     for (let i = 0; i < left; i++) {
       historyDate.push("-");
     }
-    setHistoryDate(dates)
+    setHistoryDate(dates);
     console.log(historyDate);
 
     let total = [];
     for (let i = 0; i < historyDate.length; i++) {
       let current = 0;
       for (let j = 0; j < histories.length; j++) {
-        let context = histories[j]
+        let context = histories[j];
         if (context.date === historyDate[i] && context.isCompleted) {
           if (context.isOverspent) {
             current += context.amount * (1 + context.spentPercent);
             score -= context.range;
           } else {
-            current += context.amount * (1 - (-1*context.spentPercent));
+            current += context.amount * (1 - -1 * context.spentPercent);
             score += context.range;
           }
         }
@@ -136,38 +155,39 @@ export default function ProfileScreen({ route, navigation }) {
     //Goal Progression
     let saved = 0;
     for (let i = 0; i < histories.length; i++) {
-      let context = histories[i]
+      let context = histories[i];
       if (context.date >= profileGoal.date && context.isCompleted) {
         if (context.isOverspent) {
           saved -= context.amount * context.spentPercent;
         } else {
-          saved += context.amount * (-1*context.spentPercent);
+          saved += context.amount * (-1 * context.spentPercent);
         }
       }
     }
     for (let i = 0; i < today.length; i++) {
-      let context = today[i]
+      let context = today[i];
       if (context.date >= profileGoal.date && context.isCompleted) {
-        console.log("date: ", profileGoal.date)
+        console.log("date: ", profileGoal.date);
         if (context.isOverspent) {
           saved -= context.amount * context.spentPercent;
         } else {
-          saved += context.amount * (-1*context.spentPercent);
+          saved += context.amount * (-1 * context.spentPercent);
         }
       }
     }
 
-    if (saved >= profileGoal.amount){
+    if (saved >= profileGoal.amount) {
       setGoalProgress(100);
-    }else{
-      let progress = Math.round((1 - ((profileGoal.amount - saved) / profileGoal.amount)) * 100)
-      if(progress < 0){
-        setGoalProgress(0)
-      }else{
-        setGoalProgress(progress)
+    } else {
+      let progress = Math.round(
+        (1 - (profileGoal.amount - saved) / profileGoal.amount) * 100
+      );
+      if (progress < 0) {
+        setGoalProgress(0);
+      } else {
+        setGoalProgress(progress);
       }
     }
-
   }, [, profileGoal]);
 
   let chartData = {
@@ -293,14 +313,14 @@ export default function ProfileScreen({ route, navigation }) {
                 alignItems: "center",
               }}
             >
-              <View style={{ flex: 1, marginRight: 10}}>
+              <View style={{ flex: 1, marginRight: 10 }}>
                 <Text
                   style={{
                     fontSize: 16,
                     fontWeight: "bold",
                     color: colors.secondary,
                     textAlign: "center",
-                    marginLeft: -25
+                    marginLeft: -25,
                   }}
                 >
                   {/*{userInfo.goal}*/}
@@ -318,16 +338,10 @@ export default function ProfileScreen({ route, navigation }) {
                   }}
                 >
                   <View
-                    style={progressBarLeft(
-                      windowWidth,
-                      goalProgress
-                    )}
+                    style={progressBarLeft(windowWidth, goalProgress)}
                   ></View>
                   <View
-                    style={progressBarRight(
-                      windowWidth,
-                      goalProgress
-                    )}
+                    style={progressBarRight(windowWidth, goalProgress)}
                   ></View>
                 </View>
                 <Text
@@ -451,6 +465,57 @@ export default function ProfileScreen({ route, navigation }) {
             ))}
           </DataTable>
         </View>
+
+        {/*-----toggle enable fingerprint authentication-----*/}
+        <Card
+          style={{
+            borderRadius: 5,
+            padding: 5,
+            backgroundColor: colors.primary3,
+            marginTop: 2,
+            marginBottom: 8,
+          }}
+        >
+          <Card.Content>
+            <View
+              style={{
+                flex: 2,
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <View style={{ flex: 3, marginRight: 10 }}>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "bold",
+                    color: colors.secondary,
+                    textAlign: "center",
+                    marginLeft: -25,
+                  }}
+                >
+                  Enable Fingerprint Authentication
+                </Text>
+              </View>
+
+              <View style={{ flex: 1 }}>
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Switch onValueChange={toggleAuth} value={allowAuth} />
+                </View>
+              </View>
+            </View>
+          </Card.Content>
+        </Card>
+
         <View style={{ marginLeft: 8, marginBottom: 3 }}>
           <Text style={{ fontSize: 12, color: colors.text }}>Version 0.1</Text>
           <Text style={{ fontSize: 12, color: colors.text }}>
@@ -567,9 +632,7 @@ export default function ProfileScreen({ route, navigation }) {
       </Portal>
       <FAB icon="plus" style={styles.fab} onPress={() => showModal()}></FAB>
 
-      <View
-        style={backgroundCircle1(windowWidth, windowHeight)}
-      />
+      <View style={backgroundCircle1(windowWidth, windowHeight)} />
       <View style={backgroundCircle2(windowHeight)} />
     </SafeAreaView>
   );
@@ -612,7 +675,7 @@ const styles = StyleSheet.create({
   },
   tableView: {
     marginTop: 10,
-    marginBottom: 25,
+    marginBottom: 8,
     padding: 10,
     borderRadius: 5,
     backgroundColor: "#FFF9F0",
@@ -642,7 +705,7 @@ const progressBarRight = function (windowWidth, goalProgress) {
     height: 22,
     marginLeft: -20,
     marginTop: 10,
-    backgroundColor: goalProgress >= 100 ? ("#72C4A6"):("#EF7971"),
+    backgroundColor: goalProgress >= 100 ? "#72C4A6" : "#EF7971",
     borderRadius: 20,
     zIndex: -1,
   };
