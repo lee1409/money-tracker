@@ -12,7 +12,7 @@ import EventScreen from "./event-screen";
 import CreateCategoryScreen from "./create-category-screen";
 import ProfileScreen from "./profile-screen";
 import LoginScreen from "./login-screen";
-import { updtDisableAuth, updtEnableAuth } from "../redux/actions/index";
+import { logout } from "../redux/actions/index";
 import { useDispatch, useSelector } from "react-redux";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
@@ -33,7 +33,7 @@ export default function App() {
   const notificationListener = React.useRef();
   const responseListener = React.useRef();
   //redux - store keys
-  const { allow_auth: allowAuth, first_access: firstAccess } = useSelector(
+  const { isLogged, first_access: firstAccess } = useSelector(
     (state) => state.keys
   );
   const dispatch = useDispatch();
@@ -56,7 +56,16 @@ export default function App() {
       }
     );
 
+    const handleAppState = (state) => {
+      // Lock the screen if pop to background
+      if (state === "inactive" || state === "background") {
+        dispatch(logout());
+      }
+    };
+    AppState.addEventListener("change", handleAppState);
+
     return () => {
+      AppState.removeEventListener("change", handleAppState);
       Notifications.removeNotificationSubscription(notificationListener);
       Notifications.removeNotificationSubscription(responseListener);
     };
@@ -65,17 +74,22 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator headerMode="none">
-        {allowAuth ? (
+        {!isLogged ? (
           <Stack.Screen name="Login" component={LoginScreen}></Stack.Screen>
-        ) : null}
-
-        <Stack.Screen name="Home" component={HomeScreen}></Stack.Screen>
-        <Stack.Screen name="Event" component={EventScreen}></Stack.Screen>
-        <Stack.Screen
-          name="CreateCategory"
-          component={CreateCategoryScreen}
-        ></Stack.Screen>
-        <Stack.Screen name="Profile" component={ProfileScreen}></Stack.Screen>
+        ) : (
+          <>
+            <Stack.Screen name="Home" component={HomeScreen}></Stack.Screen>
+            <Stack.Screen name="Event" component={EventScreen}></Stack.Screen>
+            <Stack.Screen
+              name="CreateCategory"
+              component={CreateCategoryScreen}
+            ></Stack.Screen>
+            <Stack.Screen
+              name="Profile"
+              component={ProfileScreen}
+            ></Stack.Screen>
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

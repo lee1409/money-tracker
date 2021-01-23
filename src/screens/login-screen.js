@@ -15,12 +15,15 @@ import Fab from "../components/fab";
 import * as Permissions from "expo-permissions";
 import * as LocalAuthentication from "expo-local-authentication";
 import Image from "react-native-scalable-image";
+import { useDispatch } from "react-redux";
+import { login } from "../redux/actions";
 
 export default function LoginScreen({ navigation }) {
   //fingerprint authentication
   const fingerPrintImage = require("../../assets/fingerprint.gif");
   const [compatible, isCompatible] = useState(false);
   const [fingerPrints, setFingerPrints] = useState(false);
+  const dispatch = useDispatch();
   const checkDeviceForHardware = async () => {
     let compatible = await LocalAuthentication.hasHardwareAsync();
     isCompatible(compatible);
@@ -34,7 +37,7 @@ export default function LoginScreen({ navigation }) {
   const scanFingerprint = async () => {
     await LocalAuthentication.authenticateAsync().then((res) => {
       if (res.success === true) {
-        navigation.navigate("Home", { screen: "Login" });
+        dispatch(login());
       }
     });
   };
