@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, View, TouchableOpacity, Text, Image } from "react-native";
+import * as React from "react";
+import { StyleSheet, View, Text, Image } from "react-native";
 import AppIntroSlider from "react-native-app-intro-slider";
 
 const slides = [
@@ -34,6 +34,7 @@ const slides = [
 export default function Hi({ navigation }) {
   return (
     <AppIntroSlider
+      showPrevButton
       data={slides}
       renderItem={({ item }) => (
         <View
@@ -53,15 +54,7 @@ export default function Hi({ navigation }) {
               marginBottom: 10,
             }}
           />
-
           <Text style={styles.title}>{item.title}</Text>
-
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Login")}
-            style={styles.appButtonContainer3}
-          >
-            <Text style={styles.appButtonText3}>Skip {" >>"}</Text>
-          </TouchableOpacity>
         </View>
       )}
       onDone={() => navigation.push("Login")}
