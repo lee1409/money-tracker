@@ -1,25 +1,21 @@
 // In App.js in a new project
 
-import React, { useState, useEffect, useRef } from "react";
+import React, {  } from "react";
 import {
   View,
   Text,
   StyleSheet,
   Dimensions,
   TouchableOpacity,
-  ImageBackground,
 } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import Fab from "../components/fab";
 import * as LocalAuthentication from "expo-local-authentication";
 import Image from "react-native-scalable-image";
 import { useDispatch } from "react-redux";
 import { login } from "../redux/actions";
+const fingerPrintImage = require("../../assets/fingerprint.gif");
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen({ }) {
   //fingerprint authentication
-  const fingerPrintImage = require("../../assets/fingerprint.gif");
   const dispatch = useDispatch();
 
   const scanFingerprint = async () => {
@@ -34,7 +30,7 @@ export default function LoginScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.fingerPrint}>
-        <TouchableOpacity onPress={() => scanFingerprint()}>
+        <TouchableOpacity onPress={scanFingerprint}>
           <View style={styles.bigCircle}>
             <View style={styles.smallCircle}>
               <Image
