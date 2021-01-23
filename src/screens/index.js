@@ -1,18 +1,21 @@
 // In App.js in a new project
 
 import * as React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+} from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import HomeScreen from "./home-screen";
 import EventScreen from "./event-screen";
 import CreateCategoryScreen from "./create-category-screen";
 import ProfileScreen from "./profile-screen";
 import LoginScreen from "./login-screen";
-import { updtDisableAuth, updtEnableAuth } from "../redux/actions/index";
+import { logout } from "../redux/actions/index";
 import { useDispatch, useSelector } from "react-redux";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import * as Permissions from "expo-permissions";
+import { AppState } from "react-native";
 const Stack = createStackNavigator();
 
 Notifications.setNotificationHandler({
@@ -23,21 +26,20 @@ Notifications.setNotificationHandler({
   }),
 });
 export default function App() {
-  const [expoPushToken, setExpoPushToken] = React.useState("");
-  const [notification, setNotification] = React.useState(false);
+  const navRef = React.useRef();
+  const [, setExpoPushToken] = React.useState("");
+  const [, setNotification] = React.useState(false);
   const notificationListener = React.useRef();
   const responseListener = React.useRef();
   //redux - store keys
-  const {allowAuth, firstAccess} = useSelector((state) => state.keys);
+  const { isLogged, allow_auth: allowAuth, first_access: firstAccess } = useSelector(
+    (state) => state.keys
+  );
   const dispatch = useDispatch();
   React.useEffect(() => {
+    // Dealing with notification
     if (firstAccess) {
       schedulePushNotification();
-      if (!allowAuth) {
-        dispatch(updtDisableAuth());
-      } else {
-        dispatch(updtEnableAuth());
-      }
     }
     registerForPushNotificationsAsync().then((token) =>
       setExpoPushToken(token)
@@ -52,25 +54,43 @@ export default function App() {
         console.log(response);
       }
     );
+
+    const handleAppState = (state) => {
+      // Lock the screen if pop to background
+      if (state === "inactive" || state === "background") {
+        if (navRef.current.getCurrentRoute().name !== 'Login') {
+          dispatch(logout());
+        }
+      }
+    };
+    AppState.addEventListener("change", handleAppState);
+
     return () => {
+      AppState.removeEventListener("change", handleAppState);
       Notifications.removeNotificationSubscription(notificationListener);
       Notifications.removeNotificationSubscription(responseListener);
     };
   }, []);
-  return (
-    <NavigationContainer>
-      <Stack.Navigator headerMode="none">
-        {allowAuth ? (
-          <Stack.Screen name="Login" component={LoginScreen}></Stack.Screen>
-        ) : null}
 
-        <Stack.Screen name="Home" component={HomeScreen}></Stack.Screen>
-        <Stack.Screen name="Event" component={EventScreen}></Stack.Screen>
-        <Stack.Screen
-          name="CreateCategory"
-          component={CreateCategoryScreen}
-        ></Stack.Screen>
-        <Stack.Screen name="Profile" component={ProfileScreen}></Stack.Screen>
+  return (
+    <NavigationContainer ref={navRef}>
+      <Stack.Navigator headerMode="none">
+        {!isLogged && allowAuth ? (
+          <Stack.Screen name="Login" component={LoginScreen}></Stack.Screen>
+        ) : (
+          <>
+            <Stack.Screen name="Home" component={HomeScreen}></Stack.Screen>
+            <Stack.Screen name="Event" component={EventScreen}></Stack.Screen>
+            <Stack.Screen
+              name="CreateCategory"
+              component={CreateCategoryScreen}
+            ></Stack.Screen>
+            <Stack.Screen
+              name="Profile"
+              component={ProfileScreen}
+            ></Stack.Screen>
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
