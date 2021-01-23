@@ -1,11 +1,13 @@
 import * as React from "react";
 import { StyleSheet, View, Text, Image } from "react-native";
 import AppIntroSlider from "react-native-app-intro-slider";
+import { useDispatch } from "react-redux";
+import { disableFirstAccess } from "../redux/actions";
 
 const slides = [
   {
     key: 1,
-    title: "Hi There! \n\n Welcome to Budget Tracker !",
+    title: "Hi There! \n\n Welcome to Budget Tracker!",
     text: "Description.\nSay something cool",
     image: require("../assets/ww.png"),
     backgroundColor: "#EF7971",
@@ -23,7 +25,7 @@ const slides = [
   {
     key: 3,
     title:
-      "Add your recurring events and Record your expense with \n a single swipe",
+      "Add your recurring events and record your expense with \n a single swipe",
     image: require("../assets/guide.gif"),
     backgroundColor: "#72C4A6",
     width: 230,
@@ -31,7 +33,13 @@ const slides = [
   },
 ];
 
-export default function Hi({ navigation }) {
+export default function WelcomeScreen() {
+  const dispatch = useDispatch();
+
+  const handleDone = () => {
+    dispatch(disableFirstAccess());
+  };
+
   return (
     <AppIntroSlider
       showPrevButton
@@ -49,15 +57,15 @@ export default function Hi({ navigation }) {
             source={item.image}
             style={{
               height: item.height,
-              width: item.width,
-              resizeMode: "stretch",
+              width: "60%",
+              resizeMode: "contain",
               marginBottom: 10,
             }}
           />
           <Text style={styles.title}>{item.title}</Text>
         </View>
       )}
-      onDone={() => navigation.push("Login")}
+      onDone={handleDone}
     />
   );
 }
