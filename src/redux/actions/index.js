@@ -98,3 +98,5 @@ export const toggleLogin = createAction("TOGGLE_LOGIN");
 export const logout = createAction('LOGOUT')
 
 export const login = createAction('LOGIN');
+
+export const disableFirstAccess = createAction('DISABLE_FIRST_ACCCESS');

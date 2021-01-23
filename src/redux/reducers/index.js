@@ -16,7 +16,8 @@ import {
   toggleAuth,
   toggleLogin,
   login,
-  logout
+  logout,
+  disableFirstAccess
 } from "../actions/index";
 
 import { overwriteToday } from "../actions/index";
@@ -41,7 +42,9 @@ const events = createReducer([], (builder) => {
       if (index !== -1) {
         state.splice(index, 1, action.payload);
       }
-      console.warn("Index not found: ", index, state, action.payload.uid);
+      else {
+        console.warn("Index not found: ", index, state, action.payload.uid);
+      }
     })
     .addCase(deleteEvent, (state, action) => {
       let index = state.findIndex(
@@ -114,7 +117,9 @@ const today = createReducer([], (builder) => {
         let updatedEvent = { ...event, isCompleted: !event.isCompleted };
         state.splice(index, 1, updatedEvent);
       }
-      console.warn("Index not found: ", index, state, action.payload.uid);
+      else {
+        console.warn("Index not found: ", index, state, action.payload.uid);
+      }
     });
 });
 
@@ -167,6 +172,9 @@ const keys = createReducer(
     })
     .addCase(logout, (state) => {
       state.isLogged = false;
+    })
+    .addCase(disableFirstAccess, (state) => {
+      state.first_access = false;
     })
   }
 );

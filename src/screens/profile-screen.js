@@ -230,7 +230,6 @@ export default function ProfileScreen({ route, navigation }) {
             }}
           ></IconButton>
         </View>
-        <Text style={styles.text2}>{formatGoal(0)}</Text>
         <Text style={styles.text3}>Take a look at your accomplishment</Text>
 
         {/*--------streak & score---------------------------------*/}
