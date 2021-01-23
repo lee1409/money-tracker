@@ -10,12 +10,14 @@ import EventScreen from "./event-screen";
 import CreateCategoryScreen from "./create-category-screen";
 import ProfileScreen from "./profile-screen";
 import LoginScreen from "./login-screen";
+import WelcomeScreen from "./welcome-screen";
 import { logout } from "../redux/actions/index";
 import { useDispatch, useSelector } from "react-redux";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import * as Permissions from "expo-permissions";
 import { AppState } from "react-native";
+import { View } from "react-native";
 const Stack = createStackNavigator();
 
 Notifications.setNotificationHandler({
@@ -74,9 +76,12 @@ export default function App() {
 
   return (
     <NavigationContainer ref={navRef}>
-      <Stack.Navigator headerMode="none">
+      <Stack.Navigator headerMode="none">    
         {!isLogged && allowAuth ? (
+          <>
+          <Stack.Screen name="Welcome" component={WelcomeScreen}></Stack.Screen>
           <Stack.Screen name="Login" component={LoginScreen}></Stack.Screen>
+          </>
         ) : (
           <>
             <Stack.Screen name="Home" component={HomeScreen}></Stack.Screen>
