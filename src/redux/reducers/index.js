@@ -42,7 +42,9 @@ const events = createReducer([], (builder) => {
       if (index !== -1) {
         state.splice(index, 1, action.payload);
       }
-      console.warn("Index not found: ", index, state, action.payload.uid);
+      else {
+        console.warn("Index not found: ", index, state, action.payload.uid);
+      }
     })
     .addCase(deleteEvent, (state, action) => {
       let index = state.findIndex(
@@ -115,7 +117,9 @@ const today = createReducer([], (builder) => {
         let updatedEvent = { ...event, isCompleted: !event.isCompleted };
         state.splice(index, 1, updatedEvent);
       }
-      console.warn("Index not found: ", index, state, action.payload.uid);
+      else {
+        console.warn("Index not found: ", index, state, action.payload.uid);
+      }
     });
 });
 
