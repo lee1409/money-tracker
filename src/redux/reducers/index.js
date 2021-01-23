@@ -14,7 +14,9 @@ import {
   resetGoal,
   updateGoal,
   toggleAuth,
-  toggleLogin
+  toggleLogin,
+  login,
+  logout
 } from "../actions/index";
 
 import { overwriteToday } from "../actions/index";
@@ -159,6 +161,12 @@ const keys = createReducer(
     })
     .addCase(toggleLogin, (state) => {
       state.isLogged = !state.isLogged;
+    })
+    .addCase(login, (state) => {
+      state.isLogged = true;
+    })
+    .addCase(logout, (state) => {
+      state.isLogged = false;
     })
   }
 );

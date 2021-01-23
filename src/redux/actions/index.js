@@ -94,3 +94,7 @@ export const toggleToday = createAction("TOGGLE_TODAY", (uid) => ({
 }));
 
 export const toggleLogin = createAction("TOGGLE_LOGIN");
+
+export const logout = createAction('LOGOUT')
+
+export const login = createAction('LOGIN');
