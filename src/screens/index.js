@@ -33,7 +33,7 @@ export default function App() {
   const notificationListener = React.useRef();
   const responseListener = React.useRef();
   //redux - store keys
-  const { isLogged, first_access: firstAccess } = useSelector(
+  const { isLogged, allow_auth: allowAuth, first_access: firstAccess } = useSelector(
     (state) => state.keys
   );
   const dispatch = useDispatch();
@@ -74,7 +74,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator headerMode="none">
-        {!isLogged ? (
+        {!isLogged && allowAuth ? (
           <Stack.Screen name="Login" component={LoginScreen}></Stack.Screen>
         ) : (
           <>
