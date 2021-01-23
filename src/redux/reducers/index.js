@@ -13,7 +13,8 @@ import {
   deleteEvent,
   resetGoal,
   updateGoal,
-  toggleAuth
+  toggleAuth,
+  toggleLogin
 } from "../actions/index";
 
 import { overwriteToday } from "../actions/index";
@@ -150,11 +151,14 @@ const histories = createReducer([], (builder) => {
 });
 
 const keys = createReducer(
-  { first_access: true, allow_auth: false },
+  { first_access: true, allow_auth: true, isLogged: false },
   (builder) => {
     builder
     .addCase(toggleAuth, (state) => {
       state.allow_auth = !state.allow_auth;
+    })
+    .addCase(toggleLogin, (state) => {
+      state.isLogged = !state.isLogged;
     })
   }
 );

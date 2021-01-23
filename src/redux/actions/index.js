@@ -92,3 +92,5 @@ export const toggleAuth = createAction("TOGGLE_AUTH");
 export const toggleToday = createAction("TOGGLE_TODAY", (uid) => ({
   payload: uid,
 }));
+
+export const toggleLogin = createAction("TOGGLE_LOGIN");
