@@ -82,16 +82,26 @@ export default function ProfileScreen({ route, navigation }) {
     hideModal();
   };
   const goalUpdate = () => {
+    let targetAmount = parseInt(profileGoal.amount.trim().replace("-", ""))
+    setProfileGoal({ ...profileGoal, amount: targetAmount });
     dispatch(updateGoal(profileGoal));
     hideModal();
   };
 
-  const formatGoal = () => {
-    let goalName = profileGoal.name;
-    if (goalName.length > 13) {
-      return goalName.slice(0, 13) + "...";
+  const formatGoal = (mode) => {
+    if(mode=== 0){
+      let username = profileGoal.username;
+      if (username.length > 20) {
+        return username.slice(0, 20) + "...";
+      }
+      return username;
+    }else if(mode === 1){
+      let goalName = profileGoal.name;
+      if (goalName.length > 13) {
+        return goalName.slice(0, 13) + "...";
+      }
+      return goalName;
     }
-    return goalName;
   };
 
   useEffect(() => {
@@ -327,7 +337,7 @@ export default function ProfileScreen({ route, navigation }) {
                   }}
                 >
                   {/*{userInfo.goal}*/}
-                  {formatGoal()}
+                  {formatGoal(1)}
                 </Text>
               </View>
 
@@ -569,6 +579,7 @@ export default function ProfileScreen({ route, navigation }) {
             placeholderTextColor={colors.accent2}
             underlineColorAndroid={colors.accent2}
             label="Amount"
+            keyboardType="numeric"
             onChangeText={handleGoalAmount}
             value={profileGoal.amount}
           ></TextInput>
