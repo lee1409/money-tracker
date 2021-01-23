@@ -1,9 +1,7 @@
 // In App.js in a new project
 
 import * as React from "react";
-import {
-  NavigationContainer,
-} from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import HomeScreen from "./home-screen";
 import EventScreen from "./event-screen";
@@ -34,9 +32,11 @@ export default function App() {
   const notificationListener = React.useRef();
   const responseListener = React.useRef();
   //redux - store keys
-  const { isLogged, allow_auth: allowAuth, first_access: firstAccess } = useSelector(
-    (state) => state.keys
-  );
+  const {
+    isLogged,
+    allow_auth: allowAuth,
+    first_access: firstAccess,
+  } = useSelector((state) => state.keys);
   const dispatch = useDispatch();
   React.useEffect(() => {
     // Dealing with notification
@@ -60,7 +60,7 @@ export default function App() {
     const handleAppState = (state) => {
       // Lock the screen if pop to background
       if (state === "inactive" || state === "background") {
-        if (navRef.current.getCurrentRoute().name !== 'Login') {
+        if (navRef.current.getCurrentRoute().name !== "Login") {
           dispatch(logout());
         }
       }
@@ -76,11 +76,12 @@ export default function App() {
 
   return (
     <NavigationContainer ref={navRef}>
-      <Stack.Navigator headerMode="none">    
-        {!isLogged && allowAuth ? (
-          <>
+      <Stack.Navigator headerMode="none">
+        {firstAccess ? (
           <Stack.Screen name="Welcome" component={WelcomeScreen}></Stack.Screen>
-          <Stack.Screen name="Login" component={LoginScreen}></Stack.Screen>
+        ) : !isLogged && allowAuth ? (
+          <>
+            <Stack.Screen name="Login" component={LoginScreen}></Stack.Screen>
           </>
         ) : (
           <>
