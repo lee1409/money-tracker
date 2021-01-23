@@ -16,7 +16,8 @@ import {
   toggleAuth,
   toggleLogin,
   login,
-  logout
+  logout,
+  disableFirstAccess
 } from "../actions/index";
 
 import { overwriteToday } from "../actions/index";
@@ -167,6 +168,9 @@ const keys = createReducer(
     })
     .addCase(logout, (state) => {
       state.isLogged = false;
+    })
+    .addCase(disableFirstAccess, (state) => {
+      state.first_access = false;
     })
   }
 );
