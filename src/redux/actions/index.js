@@ -87,6 +87,8 @@ export const updtDisableAuth = createAction("UPDATE_DISABLE_AUTH", (key) => ({
   payload: key,
 }));
 
+export const toggleAuth = createAction("TOGGLE_AUTH");
+
 export const toggleToday = createAction("TOGGLE_TODAY", (uid) => ({
   payload: uid,
 }));

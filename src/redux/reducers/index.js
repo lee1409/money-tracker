@@ -13,6 +13,7 @@ import {
   deleteEvent,
   resetGoal,
   updateGoal,
+  toggleAuth
 } from "../actions/index";
 
 import { overwriteToday } from "../actions/index";
@@ -24,7 +25,6 @@ import {
   updateHistory,
   addBulkHistory,
 } from "../actions/index";
-import { updtEnableAuth, updtDisableAuth } from "../actions/index";
 
 const events = createReducer([], (builder) => {
   builder
@@ -153,18 +153,9 @@ const keys = createReducer(
   { first_access: true, allow_auth: false },
   (builder) => {
     builder
-      .addCase(updtEnableAuth, (state, action) => {
-        return Object.assign({}, action.payload, {
-          first_access: false,
-          allow_auth: true,
-        });
-      })
-      .addCase(updtDisableAuth, (state, action) => {
-        return Object.assign({}, action.payload, {
-          first_access: false,
-          allow_auth: false,
-        });
-      });
+    .addCase(toggleAuth, (state) => {
+      state.allow_auth = !state.allow_auth;
+    })
   }
 );
 
