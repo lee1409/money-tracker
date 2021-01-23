@@ -1,101 +1,82 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  TouchableOpacity,
-  Image,
-  ImageBackground,
-} from "react-native";
+import React, { useState, useEffect} from 'react';
+import { StyleSheet, View, TouchableOpacity,Text,Image } from 'react-native';
+import AppIntroSlider from 'react-native-app-intro-slider';
+ 
+
+ 
+const slides = [
+    {
+      key: 1,
+      title: 'Hi There! \n\n Welcome to Budget Tracker !',
+      text: 'Description.\nSay something cool',
+      image: require('../assets/ww.png'),
+      backgroundColor: '#EF7971',
+      width: 300,
+      height: 300,
+    },
+    {
+      key: 2,
+      title: 'Set your budget goals',
+      image: require('../assets/w.png'),
+      backgroundColor: '#F0CFA3',
+      width: 300,
+      height: 300,
+    },
+    {
+      key: 3,
+      title: 'Add your recurring events and Record your expense with \n a single swipe',
+      image: require('../assets/guide.gif'),
+      backgroundColor: '#72C4A6',
+      width: 230,
+      height: 410,
+    }
+  ];
 
 
+    export default function Hi({navigation}){
 
-export default function LoginScreen({ navigation }) {
+        return(
+            <AppIntroSlider  data={slides} 
 
-    return(
+                            renderItem={({ item }) => (
+                                <View style={{flex: 1,
+                                    justifyContent:"center",
+                                    alignItems: "center",
+                                    backgroundColor:item.backgroundColor}}>
 
-        <View style={styles.container}>
-            
+                                <Image source={item.image}
+                                            style={{height:item.height, width:item.width,resizeMode: 'stretch',marginBottom:10}}/>
 
-            <Image source={require("../assets/ww.png")}
-            style={styles.img}/>
+                                <Text style={styles.title}>{item.title}</Text>
 
-            <Text style={styles.title}>Hi There!</Text>
-            <Text style={styles.title2}>Welcome to Budget Tracker !</Text>
+                                <TouchableOpacity onPress={() => navigation.push('Login')}
+                                                    style={styles.appButtonContainer3}>
+                                                    <Text style={styles.appButtonText3}     
+                                                    >Skip {" >>"}</Text>
+                                </TouchableOpacity>
+                                </View>
+                            )}
 
-            <TouchableOpacity onPress={() => navigation.push('Welcome2')}
-                                style={styles.appButtonContainer}
-                                >
-                <Text style={styles.appButtonText}     
-                        >Next {" >>"}</Text>
-            </TouchableOpacity>
+                            onDone={() => navigation.push('Login')}/>
 
-            <TouchableOpacity onPress={() => navigation.push('Login')}
-                                style={styles.appButtonContainer3}>
-                <Text style={styles.appButtonText3}     
-                        >Skip {" >>"}</Text>
-            </TouchableOpacity>
-        </View>
-    );
+        );
+    }
+  
 
-    
-
-}
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent:"center",
-      alignItems: "center",
-      backgroundColor: "#EF7971",
-    },
-  
-    title: {
-      fontSize: 30,
-      marginTop: 10,
-      justifyContent: "center",
-      alignItems: "center",
-      color: "#fff",
-      alignSelf: "center",
-    },
-
-    title2: {
+      title: {
         fontSize: 20,
-        marginTop: 10,
+        marginTop: 5,
+        marginLeft:20,
+        marginRight:20,
         justifyContent: "center",
         alignItems: "center",
+        textAlign:"center",
         color: "#fff",
         alignSelf: "center",
       },
-
-    appButtonContainer: {
-        // elevation: 8,
-        // backgroundColor: "#009688",
-        // borderRadius: 10,
-        // paddingVertical: 10,
-        // paddingHorizontal: 12,
-        position: 'absolute', 
-        bottom: 30, 
-        right: 30,
-      },
-
-      appButtonText: {
-
-        fontSize: 18,
-        color: "#fff",
-        fontWeight: "bold",
-        alignSelf: "center",
-        textTransform: "uppercase",
-      },
-
-      img:{
-        marginBottom:20,
-        width: 300,
-        height: 300,
-        resizeMode: 'stretch',
-      },
-
+      
       appButtonContainer3: {
         position: 'absolute', 
         top: 40, 
@@ -109,5 +90,7 @@ const styles = StyleSheet.create({
         alignSelf: "center",
         textTransform: "uppercase",
       },
-
-});
+  
+  
+  
+  });
