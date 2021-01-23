@@ -12,7 +12,6 @@ import {
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import Fab from "../components/fab";
-import * as Permissions from "expo-permissions";
 import * as LocalAuthentication from "expo-local-authentication";
 import Image from "react-native-scalable-image";
 import { useDispatch } from "react-redux";
@@ -21,31 +20,16 @@ import { login } from "../redux/actions";
 export default function LoginScreen({ navigation }) {
   //fingerprint authentication
   const fingerPrintImage = require("../../assets/fingerprint.gif");
-  const [compatible, isCompatible] = useState(false);
-  const [fingerPrints, setFingerPrints] = useState(false);
   const dispatch = useDispatch();
-  const checkDeviceForHardware = async () => {
-    let compatible = await LocalAuthentication.hasHardwareAsync();
-    isCompatible(compatible);
-    console.log("compatible", compatible);
-  };
-  const checkForFingerprints = async () => {
-    let fingerprints = await LocalAuthentication.isEnrolledAsync();
-    setFingerPrints(fingerprints);
-    console.log("fingerPrints", fingerprints);
-  };
-  const scanFingerprint = async () => {
-    await LocalAuthentication.authenticateAsync().then((res) => {
-      if (res.success === true) {
-        dispatch(login());
-      }
-    });
-  };
 
-  useEffect(() => {
-    checkDeviceForHardware();
-    checkForFingerprints();
-  }, []);
+  const scanFingerprint = async () => {
+    const res = await LocalAuthentication.authenticateAsync()
+    if (res.success) {
+      dispatch(login());
+    } else {
+      alert('Failed to authenticate. Please try again.');
+    }
+  };
 
   return (
     <View style={styles.container}>

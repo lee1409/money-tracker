@@ -22,7 +22,8 @@ import {
 } from "react-native-paper";
 import { BarChart } from "react-native-chart-kit";
 import { useDispatch, useSelector } from "react-redux";
-import { resetGoal, toggleAuth, updateGoal } from "../redux/actions";
+import * as LocalAuthentication from "expo-local-authentication";
+import { login, resetGoal, toggleAuth, updateGoal } from "../redux/actions";
 
 export default function ProfileScreen({ route, navigation }) {
   const { colors } = useTheme();
@@ -60,6 +61,8 @@ export default function ProfileScreen({ route, navigation }) {
   const [historyTotalSpent, setHistoryTotalSpent] = useState([]);
   const [goalProgress, setGoalProgress] = useState(0);
   const [profileGoal, setProfileGoal] = useState(profileGoal_);
+
+  const [isFingerPrint, setFingerPrints] = useState(false);
 
   const handleGoalName = (name) => {
     setProfileGoal({ ...profileGoal, name });
@@ -175,6 +178,21 @@ export default function ProfileScreen({ route, navigation }) {
       }
     }
   }, [, profileGoal]);
+
+  React.useEffect(() => {
+    // Check for fingerprint
+    Promise.all(
+      LocalAuthentication.hasHardwareAsync(),
+      LocalAuthentication.isEnrolledAsync()
+    ).then((res) => {
+      // All are available
+      if (res.every((r) => r === true)) {
+        // Disable login when setting true to avoid sudden auth
+        dispatch(login());
+        setFingerPrints(true);
+      }
+    });
+  }, []);
 
   let chartData = {
     labels: historyDate,
@@ -453,34 +471,43 @@ export default function ProfileScreen({ route, navigation }) {
         </View>
 
         {/*-----toggle enable fingerprint authentication-----*/}
-        <Card
-          style={{
-            borderRadius: 5,
-            padding: 5,
-            backgroundColor: colors.primary3,
-            marginTop: 2,
-            marginBottom: 8,
-          }}
-        >
-          <Card.Content>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-              <Text
+
+        {isFingerPrint && (
+          <Card
+            style={{
+              borderRadius: 5,
+              padding: 5,
+              backgroundColor: colors.primary3,
+              marginTop: 2,
+              marginBottom: 8,
+            }}
+          >
+            <Card.Content>
+              <View
                 style={{
-                  fontSize: 16,
-                  fontWeight: "bold",
-                  color: colors.secondary,
-                  textAlign: "center",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                 }}
               >
-                Enable Fingerprint Authentication
-              </Text>
-              <Switch
-                onValueChange={() => dispatch(toggleAuth())}
-                value={allowAuth}
-              />
-            </View>
-          </Card.Content>
-        </Card>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "bold",
+                    color: colors.secondary,
+                    textAlign: "center",
+                  }}
+                >
+                  Enable Fingerprint Authentication
+                </Text>
+                <Switch
+                  onValueChange={() => dispatch(toggleAuth())}
+                  value={allowAuth}
+                />
+              </View>
+            </Card.Content>
+          </Card>
+        )}
 
         <View style={{ marginLeft: 8, marginBottom: 3 }}>
           <Text style={{ fontSize: 12, color: colors.text }}>Version 0.1</Text>
