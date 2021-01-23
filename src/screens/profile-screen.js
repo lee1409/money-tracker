@@ -53,7 +53,7 @@ export default function ProfileScreen({ route, navigation }) {
   const histories = useSelector((state) => state.histories);
   const hotSteak = useSelector((state) => state.hotSteak);
   const profileGoal_ = useSelector((state) => state.profileGoal);
-  const {allow_auth: allowAuth} = useSelector((state) => state.keys);
+  const { allow_auth: allowAuth } = useSelector((state) => state.keys);
 
   let score = Math.ceil(50 + ((hotSteak / 3) % 15));
   const [historyDate, setHistoryDate] = useState([]);
@@ -92,7 +92,6 @@ export default function ProfileScreen({ route, navigation }) {
   };
 
   useEffect(() => {
-
     chartConfig = config;
 
     // Graph Data
@@ -464,41 +463,21 @@ export default function ProfileScreen({ route, navigation }) {
           }}
         >
           <Card.Content>
-            <View
-              style={{
-                flex: 2,
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <View style={{ flex: 3, marginRight: 10 }}>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "bold",
-                    color: colors.secondary,
-                    textAlign: "center",
-                    marginLeft: -25,
-                  }}
-                >
-                  Enable Fingerprint Authentication
-                </Text>
-              </View>
-
-              <View style={{ flex: 1 }}>
-                <View
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Switch onValueChange={() => dispatch(toggleAuth())} value={allowAuth} />
-                </View>
-              </View>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: "bold",
+                  color: colors.secondary,
+                  textAlign: "center",
+                }}
+              >
+                Enable Fingerprint Authentication
+              </Text>
+              <Switch
+                onValueChange={() => dispatch(toggleAuth())}
+                value={allowAuth}
+              />
             </View>
           </Card.Content>
         </Card>
