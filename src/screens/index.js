@@ -28,10 +28,8 @@ export default function App() {
   const notificationListener = React.useRef();
   const responseListener = React.useRef();
   //redux - store keys
-  const keys = useSelector((state) => state.keys);
+  const {allowAuth, firstAccess} = useSelector((state) => state.keys);
   const dispatch = useDispatch();
-  const [firstAccess, setFirstAccess] = React.useState(keys.first_access);
-  const [allowAuth, setAllowAuth] = React.useState(keys.allow_auth);
   React.useEffect(() => {
     if (firstAccess) {
       schedulePushNotification();

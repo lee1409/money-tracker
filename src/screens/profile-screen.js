@@ -22,8 +22,7 @@ import {
 } from "react-native-paper";
 import { BarChart } from "react-native-chart-kit";
 import { useDispatch, useSelector } from "react-redux";
-import { resetGoal, updateGoal } from "../redux/actions";
-import { updtDisableAuth, updtEnableAuth } from "../redux/actions/index";
+import { resetGoal, toggleAuth, updateGoal } from "../redux/actions";
 
 export default function ProfileScreen({ route, navigation }) {
   const { colors } = useTheme();
@@ -54,16 +53,13 @@ export default function ProfileScreen({ route, navigation }) {
   const histories = useSelector((state) => state.histories);
   const hotSteak = useSelector((state) => state.hotSteak);
   const profileGoal_ = useSelector((state) => state.profileGoal);
-  const keys = useSelector((state) => state.keys);
+  const {allow_auth: allowAuth} = useSelector((state) => state.keys);
 
   let score = Math.ceil(50 + ((hotSteak / 3) % 15));
   const [historyDate, setHistoryDate] = useState([]);
   const [historyTotalSpent, setHistoryTotalSpent] = useState([]);
   const [goalProgress, setGoalProgress] = useState(0);
   const [profileGoal, setProfileGoal] = useState(profileGoal_);
-  const [key, setKey] = useState(keys);
-  const [allowAuth, setAllowAuth] = useState(keys.allow_auth);
-  const [firstAccess, setFirstAccess] = useState(keys.first_access);
 
   const handleGoalName = (name) => {
     setProfileGoal({ ...profileGoal, name });
@@ -93,15 +89,6 @@ export default function ProfileScreen({ route, navigation }) {
       return goalName.slice(0, 13) + "...";
     }
     return goalName;
-  };
-
-  const toggleAuth = (value) => {
-    setAllowAuth(value);
-    if (value){
-      dispatch(updtEnableAuth());
-    }else{
-      dispatch(updtDisableAuth());
-    }
   };
 
   useEffect(() => {
@@ -509,7 +496,7 @@ export default function ProfileScreen({ route, navigation }) {
                     alignItems: "center",
                   }}
                 >
-                  <Switch onValueChange={toggleAuth} value={allowAuth} />
+                  <Switch onValueChange={() => dispatch(toggleAuth())} value={allowAuth} />
                 </View>
               </View>
             </View>
