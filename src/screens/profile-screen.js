@@ -108,7 +108,7 @@ export default function ProfileScreen({ route, navigation }) {
     chartConfig = config;
 
     // Graph Data
-    const sortedDec = histories.sort((a, b) => {
+    const sortedDec = histories.sort((a, b) => { //**
       const aDate = new Date(a.date);
       const bDate = new Date(b.date);
       return bDate.getTime() - aDate.getTime();
@@ -121,7 +121,7 @@ export default function ProfileScreen({ route, navigation }) {
           let mm = tempDate.getMonth() + 1;
           if (dd < 10) dd = "0" + dd;
           if (mm < 10) mm = "0" + mm;
-          return dd + "/" + mm;
+          return dd + "." + mm;
         })
       ),
     ].slice(0, 7);
@@ -137,7 +137,7 @@ export default function ProfileScreen({ route, navigation }) {
       let current = 0;
       for (let j = 0; j < histories.length; j++) {
         let context = histories[j];
-        if (context.date === historyDate[i] && context.isCompleted) {
+        if (context.date === historyDate[i].date && context.isCompleted) {
           if (context.isOverspent) {
             current += context.amount * (1 + context.spentPercent);
             score -= context.range;
@@ -403,7 +403,7 @@ export default function ProfileScreen({ route, navigation }) {
               backgroundColor: "rgba(10,10,10,0.6)",
             }}
             data={chartData}
-            width={windowWidth - windowWidth * 0.3}
+            width={windowWidth - windowWidth * 0.20}
             height={220}
             yAxisLabel="$"
             withVerticalLabels
