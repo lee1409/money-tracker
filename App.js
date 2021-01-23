@@ -41,12 +41,14 @@ export default function App() {
   return (
     <Provider store={store}>
       <SafeAreaProvider>
-        {/* <PersistGate loading={<ProgressBar indeterminate />} persistor={persistor}> */}
-
-        <PaperProvider theme={theme}>
-          <Screen></Screen>
-        </PaperProvider>
-        {/* </PersistGate> */}
+        <PersistGate
+          loading={<ProgressBar indeterminate />}
+          persistor={persistor}
+        >
+          <PaperProvider theme={theme}>
+            <Screen></Screen>
+          </PaperProvider>
+        </PersistGate>
       </SafeAreaProvider>
     </Provider>
   );
