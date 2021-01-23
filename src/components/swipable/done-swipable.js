@@ -49,7 +49,7 @@ export default ({ callback, item }) => {
           },
         ]}
       >
-        {`     ${item.name} for ${item.amount}`}{" "}
+        {`     ${item.name} for $${item.amount}`}{" "}
       </Text>
     </Swipeable>
   );
