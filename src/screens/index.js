@@ -3,8 +3,6 @@
 import * as React from "react";
 import {
   NavigationContainer,
-  useNavigation,
-  useNavigationState,
 } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import HomeScreen from "./home-screen";
@@ -28,8 +26,9 @@ Notifications.setNotificationHandler({
   }),
 });
 export default function App() {
-  const [expoPushToken, setExpoPushToken] = React.useState("");
-  const [notification, setNotification] = React.useState(false);
+  const navRef = React.useRef();
+  const [, setExpoPushToken] = React.useState("");
+  const [, setNotification] = React.useState(false);
   const notificationListener = React.useRef();
   const responseListener = React.useRef();
   //redux - store keys
@@ -59,7 +58,9 @@ export default function App() {
     const handleAppState = (state) => {
       // Lock the screen if pop to background
       if (state === "inactive" || state === "background") {
-        dispatch(logout());
+        if (navRef.current.getCurrentRoute().name !== 'Login') {
+          dispatch(logout());
+        }
       }
     };
     AppState.addEventListener("change", handleAppState);
@@ -72,7 +73,7 @@ export default function App() {
   }, []);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navRef}>
       <Stack.Navigator headerMode="none">
         {!isLogged && allowAuth ? (
           <Stack.Screen name="Login" component={LoginScreen}></Stack.Screen>
