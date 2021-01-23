@@ -58,7 +58,6 @@ export const addBulkHistory = createAction("BULK_ADD_HISTORY", (histories) => ({
   payload: histories,
 }));
 
-
 export const addHistory = createAction("ADD_HISTORY", (history) => ({
   payload: history,
 }));
@@ -77,14 +76,25 @@ export const updateToday = createAction("UPDATE_TODAY", (today) => ({
 
 export const updatelastAccess = createAction("UPDATE_LAST_ACCESS");
 
-export const incHotSteak = createAction('INC_HOT_STEAK');
+export const incHotSteak = createAction("INC_HOT_STEAK");
 
-export const resetHotSteak = createAction('RESET_HOT_STEAK');
+export const resetHotSteak = createAction("RESET_HOT_STEAK");
 
-export const addKey = createAction("ADD_KEY", (key) => ({ payload: key }));
-
-export const deleteKey = createAction("DELETE_KEY", (key) => ({
+export const updtEnableAuth = createAction("UPDATE_ENABLE_AUTH", (key) => ({
+  payload: key,
+}));
+export const updtDisableAuth = createAction("UPDATE_DISABLE_AUTH", (key) => ({
   payload: key,
 }));
 
-export const toggleToday = createAction('TOGGLE_TODAY', (uid) => ({payload: uid}));
+export const toggleAuth = createAction("TOGGLE_AUTH");
+
+export const toggleToday = createAction("TOGGLE_TODAY", (uid) => ({
+  payload: uid,
+}));
+
+export const toggleLogin = createAction("TOGGLE_LOGIN");
+
+export const logout = createAction('LOGOUT')
+
+export const login = createAction('LOGIN');

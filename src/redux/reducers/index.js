@@ -10,7 +10,13 @@ import {
   resetHotSteak,
   toggleToday,
   updateEvent,
-  deleteEvent, resetGoal, updateGoal,
+  deleteEvent,
+  resetGoal,
+  updateGoal,
+  toggleAuth,
+  toggleLogin,
+  login,
+  logout
 } from "../actions/index";
 
 import { overwriteToday } from "../actions/index";
@@ -22,7 +28,6 @@ import {
   updateHistory,
   addBulkHistory,
 } from "../actions/index";
-import { addKey, deleteKey } from "../actions/index";
 
 const events = createReducer([], (builder) => {
   builder
@@ -76,14 +81,19 @@ const categories = createReducer(
 );
 
 const profileGoal = createReducer(
-  {username: "Alice", name: "A Gift", amount: 20, date: new Date().toDateString()},
+  {
+    username: "Alice",
+    name: "A Gift",
+    amount: 20,
+    date: new Date().toDateString(),
+  },
   (builder) => {
     builder
       .addCase(resetGoal, (state, action) => {
         state = action.payload;
       })
       .addCase(updateGoal, (state, action) => {
-        return Object.assign({}, action.payload, {date: state.date})
+        return Object.assign({}, action.payload, { date: state.date });
       });
   }
 );
@@ -142,16 +152,24 @@ const histories = createReducer([], (builder) => {
     });
 });
 
-const keys = createReducer([], (builder) => {
-  builder
-    .addCase(addKey, (state, action) => {
-      state.push(action.payload.key);
+const keys = createReducer(
+  { first_access: true, allow_auth: true, isLogged: false },
+  (builder) => {
+    builder
+    .addCase(toggleAuth, (state) => {
+      state.allow_auth = !state.allow_auth;
     })
-    .addCase(deleteKey, (state, action) => {
-      let index = state.indexOf(action.payload);
-      state.splice(index, 1);
-    });
-});
+    .addCase(toggleLogin, (state) => {
+      state.isLogged = !state.isLogged;
+    })
+    .addCase(login, (state) => {
+      state.isLogged = true;
+    })
+    .addCase(logout, (state) => {
+      state.isLogged = false;
+    })
+  }
+);
 
 export default combineReducers({
   todos,
@@ -163,5 +181,5 @@ export default combineReducers({
   today,
   hotSteak,
   keys,
-  profileGoal
+  profileGoal,
 });
