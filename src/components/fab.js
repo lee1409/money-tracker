@@ -8,7 +8,7 @@ export default ({navigation}) => (
     actions={actions}
     color="#488B80"
     onPressItem={(name) => {
-      navigation.navigate(name);
+      navigation.navigate(name, {screen: 'home'});
     }}
   />
 );
