@@ -158,7 +158,7 @@ const histories = createReducer([], (builder) => {
 });
 
 const keys = createReducer(
-  { first_access: true, allow_auth: true, isLogged: false },
+  { first_access: true, allow_auth: false, isLogged: false },
   (builder) => {
     builder
     .addCase(toggleAuth, (state) => {
