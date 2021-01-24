@@ -7,7 +7,7 @@ import { disableFirstAccess } from "../redux/actions";
 const slides = [
   {
     key: 1,
-    title: "Hi There! \n\n Welcome to Budget Tracker!",
+    title: "Hi There! \n\n Welcome to Money Tracker!",
     text: "Description.\nSay something cool",
     image: require("../assets/ww.png"),
     backgroundColor: "#EF7971",
@@ -16,7 +16,7 @@ const slides = [
   },
   {
     key: 2,
-    title: "Set your budget goals",
+    title: "Set your saving goals",
     image: require("../assets/w.png"),
     backgroundColor: "#F0CFA3",
     width: 300,
