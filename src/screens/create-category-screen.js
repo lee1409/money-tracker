@@ -15,7 +15,7 @@ const getItemCount = (data) => {
   return data.length;
 };
 
-export default function CreateCategoryScreen({ navigation }) {
+export default function CreateCategoryScreen({ route, navigation }) {
   const { colors } = useTheme();
   const categories = useSelector((state) => state.categories);
   const tries = React.useMemo(() => new Tries(categories), [categories]);
@@ -61,7 +61,14 @@ export default function CreateCategoryScreen({ navigation }) {
           if (!ref.current.length) {
             categoryDispatch(addCategory(searchQuery));
           }
-          navigation.navigate("Event", { category: searchQuery });
+          // Handle for home
+          if (route.params?.screen === 'home') {
+            navigation.goBack();
+          }
+          else {
+            navigation.navigate("Event", { category: searchQuery });
+          }
+          
         }}
         value={searchQuery}
       />
@@ -83,10 +90,6 @@ export default function CreateCategoryScreen({ navigation }) {
                   icon={"delete"}
                   color={colors.accent2}
                   onPress={() => {
-                    let copy = Array.from(result);
-                    copy.splice(index, 1);
-                    // Local + global delete
-                    setResult(copy);
                     categoryDispatch(deleteCategory(item));
                   }}
                 ></IconButton>
