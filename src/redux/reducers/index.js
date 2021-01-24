@@ -87,7 +87,7 @@ const profileGoal = createReducer(
   {
     username: "Alice",
     name: "A Gift",
-    amount: 20,
+    amount: 60,
     date: new Date().toDateString(),
   },
   (builder) => {
